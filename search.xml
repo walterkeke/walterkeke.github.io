@@ -15,12 +15,16 @@
           
           <category> 博客 </category>
           
+          <category> 运维 </category>
+          
       </categories>
       
       
         <tags>
             
-            <tag> 博客，运维 </tag>
+            <tag> 博客 </tag>
+            
+            <tag> 运维 </tag>
             
         </tags>
       
