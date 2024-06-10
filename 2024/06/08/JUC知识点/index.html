@@ -1,180 +1,151 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>JUC知识点 | 浅唱</title><meta name="author" content="Walter"><meta name="copyright" content="Walter"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="在JAVA中，当我们启动main函数时，实际上会启动一个JVM进程，main函数所在的线程就是这个进程的主线程。 并发编程的三个重要特性：原子性、可见性、有序性   原子性：使用sychronized、各种lock保证原子性   可见性：当一个线程对共享变量修改后，另外的线程都是可以立即看到修改后的最新值。使用sychronized、volatile、lock实现可见性。   有序性：指令重排序">
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1" theme-name="Stellar" theme-version="1.28.1">
+  
+  <meta name="generator" content="Hexo 7.2.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafb">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  
+  <title>JUC知识点 - Walter's Blog</title>
+
+  
+    <meta name="description" content="在JAVA中，当我们启动main函数时，实际上会启动一个JVM进程，main函数所在的线程就是这个进程的主线程。 并发编程的三个重要特性：原子性、可见性、有序性   原子性：使用sychronized、各种lock保证原子性   可见性：当一个线程对共享变量修改后，另外的线程都是可以立即看到修改后的最新值。使用sychronized、volatile、lock实现可见性。   有序性：指令重排序">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JUC知识点">
 <meta property="og:url" content="http://walterke1001.github.io/2024/06/08/JUC%E7%9F%A5%E8%AF%86%E7%82%B9/index.html">
-<meta property="og:site_name" content="浅唱">
+<meta property="og:site_name" content="Walter&#39;s Blog">
 <meta property="og:description" content="在JAVA中，当我们启动main函数时，实际上会启动一个JVM进程，main函数所在的线程就是这个进程的主线程。 并发编程的三个重要特性：原子性、可见性、有序性   原子性：使用sychronized、各种lock保证原子性   可见性：当一个线程对共享变量修改后，另外的线程都是可以立即看到修改后的最新值。使用sychronized、volatile、lock实现可见性。   有序性：指令重排序">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://mybgimages.oss-cn-beijing.aliyuncs.com/bg/5.jpg">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309202706043.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309204137587.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309204253422.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309204402331.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309204819989.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309205219858.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309205830743.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309205943877.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309210310343.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309210624669.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309210918913.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309211337601.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309211842592.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309212837104.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309212920842.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309213722393.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309214010249.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310140600006.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310142855985.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310143751088.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240503193419346-1716727704727-17.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310144605392.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240606183136051.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240606185236557.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310154147808.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310154540702.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310154929359.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310155651807.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310155852881.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310151130003.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310151147324.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310153143150.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240606203510042.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310162708708.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310164627977.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310165253810.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310165419183.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310185626352.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310185932837.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310185656573.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310152254760.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310153314915.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310193152560.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310193255054.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310193949527.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310194453585.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310200853628.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505222203615.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310204839377.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224057228.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224341410.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224626253.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224715087.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224755797.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224812015.png">
+<meta property="og:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224857538.png">
 <meta property="article:published_time" content="2024-06-08T10:48:39.000Z">
 <meta property="article:modified_time" content="2024-06-09T05:20:46.389Z">
 <meta property="article:author" content="Walter">
 <meta property="article:tag" content="java">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://mybgimages.oss-cn-beijing.aliyuncs.com/bg/5.jpg"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="http://walterke1001.github.io/2024/06/08/JUC%E7%9F%A5%E8%AF%86%E7%82%B9/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
-  root: '/',
-  algolia: undefined,
-  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
-  translate: undefined,
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
-  copy: {
-    success: '复制成功',
-    error: '复制错误',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '天',
-  dateSuffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'fancybox',
-  Snackbar: undefined,
-  infinitegrid: {
-    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
-    buttonText: '加载更多'
-  },
-  isPhotoFigcaption: false,
-  islazyload: false,
-  isAnchor: false,
-  percent: {
-    toc: true,
-    rightside: false,
-  },
-  autoDarkmode: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'JUC知识点',
-  isPost: true,
-  isHome: false,
-  isHighlightShrink: false,
-  isToc: true,
-  postUpdate: '2024-06-09 13:20:46'
-}</script><script>(win=>{
-      win.saveToLocal = {
-        set: (key, value, ttl) => {
-          if (ttl === 0) return
-          const now = Date.now()
-          const expiry = now + ttl * 86400000
-          const item = {
-            value,
-            expiry
-          }
-          localStorage.setItem(key, JSON.stringify(item))
-        },
-      
-        get: key => {
-          const itemStr = localStorage.getItem(key)
-      
-          if (!itemStr) {
-            return undefined
-          }
-          const item = JSON.parse(itemStr)
-          const now = Date.now()
-      
-          if (now > item.expiry) {
-            localStorage.removeItem(key)
-            return undefined
-          }
-          return item.value
-        }
-      }
-    
-      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        script.onerror = reject
-        script.onload = script.onreadystatechange = function() {
-          const loadState = this.readyState
-          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-          script.onload = script.onreadystatechange = null
-          resolve()
-        }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309202706043.png">
+  
+  
+  
+  <meta name="keywords" content="java">
 
-        Object.keys(attr).forEach(key => {
-          script.setAttribute(key, attr[key])
-        })
+  <!-- feed -->
+  
 
-        document.head.appendChild(script)
-      })
+  <link rel="stylesheet" href="/css/main.css?v=1.28.1">
+
+  
+
+  
+
+  
+</head>
+<body>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="undefined" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">Walter's Blog</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"></nav>
+</div>
+<div class="widgets">
+
+
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/"><span class="title">Redis知识点</span></a><a class="item title" href="/2024/06/09/halo%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/"><span class="title">halo安装部署</span></a><a class="item title" href="/2024/06/08/JUC%E7%9F%A5%E8%AF%86%E7%82%B9/"><span class="title">JUC知识点</span></a></div></widget>
+</div>
+
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-06-08T10:48:39.000Z">2024-06-08</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-06-09T05:20:46.389Z">2024-06-09</time></span></div></div></div>
     
-      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onerror = reject
-        link.onload = link.onreadystatechange = function() {
-          const loadState = this.readyState
-          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-          link.onload = link.onreadystatechange = null
-          resolve()
-        }
-        document.head.appendChild(link)
-      })
-    
-      win.activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      win.activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
-      const t = saveToLocal.get('theme')
-    
-        if (t === 'dark') activateDarkMode()
-        else if (t === 'light') activateLightMode()
+    <div class="bottom only-title">
       
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        if (asideStatus === 'hide') {
-          document.documentElement.classList.add('hide-aside')
-        } else {
-          document.documentElement.classList.remove('hide-aside')
-        }
-      }
+      <div class="text-area">
+        <h1 class="text title"><span>JUC知识点</span></h1>
+        
+      </div>
+    </div>
     
-      const detectApple = () => {
-        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-          document.documentElement.classList.add('apple')
-        }
-      }
-      detectApple()
-    })(window)</script><link rel="stylesheet" href="/css/modify.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
-  const $loadingBox = document.getElementById('loading-box')
-  const $body = document.body
-  const preloader = {
-    endLoading: () => {
-      $body.style.overflow = ''
-      $loadingBox.classList.add('loaded')
-    },
-    initLoading: () => {
-      $body.style.overflow = 'hidden'
-      $loadingBox.classList.remove('loaded')
-    }
-  }
-
-  preloader.initLoading()
-  window.addEventListener('load',() => { preloader.endLoading() })
-
-  if (false) {
-    document.addEventListener('pjax:send', () => { preloader.initLoading() })
-    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
-  }
-})()</script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/share/"><i class="fa-fw fa fa-comments"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://mybgimages.oss-cn-beijing.aliyuncs.com/bg/5.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="浅唱"><span class="site-name">浅唱</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/share/"><i class="fa-fw fa fa-comments"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">JUC知识点</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-06-08T10:48:39.000Z" title="发表于 2024-06-08 18:48:39">2024-06-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-06-09T05:20:46.389Z" title="更新于 2024-06-09 13:20:46">2024-06-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%90%8E%E7%AB%AF/">后端</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="JUC知识点"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309202706043.png" alt="image-20240309202706043" style="zoom: 67%;">
+  </div>
+  </div><article class="md-text content"><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309202706043.png" alt="image-20240309202706043" style="zoom: 67%;">
 <p><strong>在JAVA中，当我们启动main函数时，实际上会启动一个<mark>JVM进程</mark>，main函数所在的线程就是这个进程的<mark>主线程</mark>。</strong></p>
 <p><strong>并发编程的<mark>三个重要特性</mark>：原子性、可见性、有序性</strong></p>
 <ul class="lvl-0">
@@ -190,41 +161,41 @@
 </ul>
 <h2 id="多线程">多线程</h2>
 <h3 id="进程和线程的区别">进程和线程的区别</h3>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309204137587.png" alt="image-20240309204137587"></p>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309204253422.png" alt="image-20240309204253422" style="zoom: 50%;">
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309204402331.png" alt="image-20240309204402331"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309204137587.png" alt="image-20240309204137587"></p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309204253422.png" alt="image-20240309204253422" style="zoom: 50%;">
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309204402331.png" alt="image-20240309204402331"></p>
 <h3 id="并发和并行">并发和并行</h3>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309204819989.png" alt="image-20240309204819989"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309204819989.png" alt="image-20240309204819989"></p>
 <h3 id="创建线程的方式">创建线程的方式</h3>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309205219858.png" alt="image-20240309205219858" style="zoom:50%;">
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309205830743.png" alt="image-20240309205830743" style="zoom: 50%;">
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309205943877.png" alt="image-20240309205943877" style="zoom: 50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309205219858.png" alt="image-20240309205219858" style="zoom:50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309205830743.png" alt="image-20240309205830743" style="zoom: 50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309205943877.png" alt="image-20240309205943877" style="zoom: 50%;">
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">test</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">//匿名内部类，在Thread()中传入实现了Rannable接口的实例</span></span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(()-&gt;&#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;hello&quot;</span>);</span><br><span class="line">        &#125;).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309210310343.png" alt="image-20240309210310343" style="zoom: 50%;">
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309210624669.png" alt="image-20240309210624669" style="zoom: 50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309210310343.png" alt="image-20240309210310343" style="zoom: 50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309210624669.png" alt="image-20240309210624669" style="zoom: 50%;">
 <h4 id="Runnable和Callable有什么区别">Runnable和Callable有什么区别</h4>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309210918913.png" alt="image-20240309210918913"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309210918913.png" alt="image-20240309210918913"></p>
 <h4 id="run-和-start-的区别">run() 和 start()的区别</h4>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309211337601.png" alt="image-20240309211337601"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309211337601.png" alt="image-20240309211337601"></p>
 <h3 id="线程的状态及转化">线程的状态及转化</h3>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309211842592.png" alt="image-20240309211842592" style="zoom: 67%;">
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309212837104.png" alt="image-20240309212837104"></p>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309212920842.png" alt="image-20240309212920842"></p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309211842592.png" alt="image-20240309211842592" style="zoom: 67%;">
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309212837104.png" alt="image-20240309212837104"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309212920842.png" alt="image-20240309212920842"></p>
 <h3 id="如何控制线程的运行顺序-join">如何控制线程的运行顺序 join()</h3>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309213722393.png" alt="image-20240309213722393"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309213722393.png" alt="image-20240309213722393"></p>
 <h3 id="notify-和notifyall">notify()和notifyall()</h3>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309214010249.png" alt="image-20240309214010249" style="zoom:50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240309214010249.png" alt="image-20240309214010249" style="zoom:50%;">
 <h3 id="sleep-和wait-⭐">sleep()和wait() ⭐</h3>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310140600006.png" alt="image-20240310140600006" style="zoom:67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310140600006.png" alt="image-20240310140600006" style="zoom:67%;">
 <h3 id="停止线程">停止线程</h3>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310142855985.png" alt="image-20240310142855985" style="zoom:67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310142855985.png" alt="image-20240310142855985" style="zoom:67%;">
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//使用标志退出</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyInterrupt1</span> <span class="keyword">extends</span> <span class="title class_">Thread</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">volatile</span> <span class="type">boolean</span> <span class="variable">flag</span> <span class="operator">=</span> <span class="literal">false</span> ;     <span class="comment">// 线程执行的退出标记</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">while</span>(!flag) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;MyThread...run...&quot;</span>);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Thread.sleep(<span class="number">3000</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建MyThread对象</span></span><br><span class="line">        <span class="type">MyInterrupt1</span> <span class="variable">t1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MyInterrupt1</span>() ;</span><br><span class="line">        t1.start();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 主线程休眠6秒</span></span><br><span class="line">        Thread.sleep(<span class="number">6000</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 更改标记为true</span></span><br><span class="line">        t1.flag = <span class="literal">true</span> ;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//使用interrupt方法中断线程</span></span><br><span class="line"><span class="keyword">package</span> com.itheima.basic;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyInterrupt3</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//1.打断阻塞的线程</span></span><br><span class="line">        <span class="comment">/*Thread t1 = new Thread(()-&gt;&#123;</span></span><br><span class="line"><span class="comment">            System.out.println(&quot;t1 正在运行...&quot;);</span></span><br><span class="line"><span class="comment">            try &#123;</span></span><br><span class="line"><span class="comment">                Thread.sleep(5000);</span></span><br><span class="line"><span class="comment">            &#125; catch (InterruptedException e) &#123;</span></span><br><span class="line"><span class="comment">                e.printStackTrace();</span></span><br><span class="line"><span class="comment">            &#125;</span></span><br><span class="line"><span class="comment">        &#125;, &quot;t1&quot;);</span></span><br><span class="line"><span class="comment">        t1.start();</span></span><br><span class="line"><span class="comment">        Thread.sleep(500);</span></span><br><span class="line"><span class="comment">        t1.interrupt();</span></span><br><span class="line"><span class="comment">        System.out.println(t1.isInterrupted());*/</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">//2.打断正常的线程</span></span><br><span class="line">        <span class="type">Thread</span> <span class="variable">t2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">while</span>(<span class="literal">true</span>) &#123;</span><br><span class="line">                <span class="type">Thread</span> <span class="variable">current</span> <span class="operator">=</span> Thread.currentThread();</span><br><span class="line">                <span class="type">boolean</span> <span class="variable">interrupted</span> <span class="operator">=</span> current.isInterrupted();</span><br><span class="line">                <span class="keyword">if</span>(interrupted) &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;打断状态：&quot;</span>+interrupted);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">&quot;t2&quot;</span>);</span><br><span class="line">        t2.start();</span><br><span class="line">        Thread.sleep(<span class="number">500</span>);</span><br><span class="line"><span class="comment">//        t2.interrupt();</span></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="synchronized底层原理">synchronized底层原理</h2>
 <h3 id="基本使用">基本使用</h3>
 <p><strong>注意：sychronized只能满足单个jvm下的锁，多个jvm下需要分布式锁，如同一个服务，但是做了集群，他们就位于不同的jvm中</strong></p>
 <p>Synchronized【对象锁】采用互斥的方式让同一时刻至多只有一个线程能持有【对象锁】，其它线程再想获取这个【对象锁】时就会阻塞住</p>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310143751088.png" alt="image-20240310143751088"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310143751088.png" alt="image-20240310143751088"></p>
 <p><mark><strong>使用方式</strong>：</mark></p>
 <ul class="lvl-0">
 <li class="lvl-2">
@@ -254,10 +225,10 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SynchronizedDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">method</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="built_in">this</span>) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;synchronized 代码块&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>以下为上述代码字节码文件的一部分，可以看到，<strong>包含两个monitorexit</strong>，这是为了保证同步代码块正常执行以及出现异常时，同步锁可以正常释放。</p>
 <p>当执行monitorenter指令时，<strong>线程</strong>会试图获取锁，也就是获取<strong>对象监视器</strong><code>monitor</code>的特有权。</p>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240503193419346-1716727704727-17.png" alt="image-20240503193419346" style="zoom: 67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240503193419346-1716727704727-17.png" alt="image-20240503193419346" style="zoom: 67%;">
 <p>在 Java 虚拟机(HotSpot)中，Monitor 是基于 C++实现的，由<code>ObjectMonitor</code>实现的。<strong>每个对象中都内置了一个 <code>ObjectMonitor</code>对象。</strong></p>
 <p>另外，<code>wait/notify</code>等方法也依赖于<code>monitor</code>对象，这就是为什么<strong>只有在同步的块或者方法中才能调用<code>wait/notify</code>等方法，否则</strong>会抛出<code>java.lang.IllegalMonitorStateException</code>的异常的原因。</p>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310144605392.png" alt="image-20240310144605392"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310144605392.png" alt="image-20240310144605392"></p>
 <p>具体的流程：</p>
 <ul class="lvl-0">
 <li class="lvl-2">
@@ -290,7 +261,7 @@
 </ul>
 <h4 id="修饰方法的情况">修饰方法的情况</h4>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SynchronizedDemo2</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">method</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;synchronized 方法&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240606183136051.png" alt="image-20240606183136051" style="zoom:50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240606183136051.png" alt="image-20240606183136051" style="zoom:50%;">
 <p><code>synchronized</code> 修饰的方法并没有 <code>monitorenter</code> 指令和 <code>monitorexit</code> 指令，取得代之的确实是 <code>ACC_SYNCHRONIZED</code> 标识，该标识指明了该方法是一个同步方法。JVM 通过该 <code>ACC_SYNCHRONIZED</code> 访问标志来辨别一个方法是否声明为同步方法，从而执行相应的同步调用。</p>
 <p><strong>如果是实例方法，JVM 会尝试获取实例对象的锁。如果是静态方法，JVM 会尝试获取当前 class 的锁</strong></p>
 <p><strong>总结</strong></p>
@@ -327,17 +298,17 @@
 </ul>
 </li>
 </ul>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240606185236557.png" alt="image-20240606185236557" style="zoom:50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240606185236557.png" alt="image-20240606185236557" style="zoom:50%;">
 <h2 id="volatile">volatile</h2>
 <h3 id="保证线程间的可见性">保证线程间的可见性</h3>
 <p>如果我们将变量声明为 <code>volatile</code> ，这就指示 JVM，这个变量是共享且不稳定的，<mark>每次使用它都到<strong>主存中进行读取</strong></mark></p>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310154147808.png" alt="image-20240310154147808"></p>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310154540702.png" alt="image-20240310154540702" style="zoom:67%;">
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310154147808.png" alt="image-20240310154147808"></p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310154540702.png" alt="image-20240310154540702" style="zoom:67%;">
 <p>其实是加了<code>volatile</code>后，每次读写这个变量，都要到共享内存中读取</p>
 <h3 id="禁止指令重排序">禁止指令重排序</h3>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310154929359.png" alt="image-20240310154929359"></p>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310155651807.png" alt="image-20240310155651807"></p>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310155852881.png" alt="image-20240310155852881" style="zoom:67%;">
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310154929359.png" alt="image-20240310154929359"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310155651807.png" alt="image-20240310155651807"></p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310155852881.png" alt="image-20240310155852881" style="zoom:67%;">
 <h4 id="双重校验锁-实现对象单例（线程安全）："><strong>双重校验锁 实现对象单例（线程安全）</strong>：</h4>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Singleton</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">static</span> Singleton uniqueInstance;</span><br><span class="line">	<span class="comment">//私有化构造函数，不能 new 对象</span></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">Singleton</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span>  <span class="keyword">static</span> Singleton <span class="title function_">getUniqueInstance</span><span class="params">()</span> &#123;</span><br><span class="line">       <span class="comment">//先判断对象是否已经实例过，没有实例化过才进入加锁代码</span></span><br><span class="line">        <span class="keyword">if</span> (uniqueInstance == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (Singleton.class) &#123;</span><br><span class="line">                <span class="keyword">if</span> (uniqueInstance == <span class="literal">null</span>) &#123;</span><br><span class="line">                    uniqueInstance = <span class="keyword">new</span> <span class="title class_">Singleton</span>();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> uniqueInstance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><code>uniqueInstance</code> 采用 <code>volatile</code> 关键字修饰也是很有必要的， <code>uniqueInstance = new Singleton();</code> 这段代码其实是分为三步执行：</p>
@@ -369,8 +340,8 @@
 </ul>
 <h2 id="JMM-Java内存模型">JMM(Java内存模型)</h2>
 <p><strong>JMM 定义了共享内存中多线程程序读写操作的行为规范。</strong></p>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310151130003.png" alt="image-20240310151130003" style="zoom:67%;">
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310151147324.png" alt="image-20240310151147324" style="zoom:67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310151130003.png" alt="image-20240310151130003" style="zoom:67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310151147324.png" alt="image-20240310151147324" style="zoom:67%;">
 <p><strong>什么是主内存？什么是本地内存？</strong></p>
 <ul class="lvl-0">
 <li class="lvl-2">
@@ -383,7 +354,7 @@
 <p>JMM为共享变量提供了可见性的保障。</p>
 <p>主内存存放共享变量，工作内存存放共享变量副本。</p>
 <h2 id="锁">锁</h2>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310153143150.png" alt="image-20240310153143150"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310153143150.png" alt="image-20240310153143150"></p>
 <h3 id="悲观锁">悲观锁</h3>
 <ul class="lvl-0">
 <li class="lvl-2">
@@ -397,8 +368,8 @@
 <p>AbstractQueueSynchronizer ,抽象队列同步器，是构建锁或其他同步组件的基础框架</p>
 <p><mark><strong>AQS 就是一个抽象类，主要用来构建锁和同步器。</strong></mark></p>
 <p>常见的实现类：ReentrantLock、Semaphore、CountDownLatch</p>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240606203510042.png" alt="image-20240606203510042" style="zoom:50%;">
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310162708708.png" alt="image-20240310162708708" style="zoom: 67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240606203510042.png" alt="image-20240606203510042" style="zoom:50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310162708708.png" alt="image-20240310162708708" style="zoom: 67%;">
 <h4 id="ReentrantLock">ReentrantLock</h4>
 <p>基于JDK实现的锁，与<code>synchronized</code>相比具有以下特点：</p>
 <ul class="lvl-0">
@@ -424,9 +395,9 @@
 <p><strong>可重入锁</strong> 也叫递归锁，指的是<strong>同一个线程</strong>可以再次获取自己的内部锁。比如一个线程获得了某个对象的锁，此时这个对象锁还没有释放，当其再次想要获取这个对象的锁的时候还是可以获取的，如果是不可重入锁的话，就会造成死锁。</p>
 <h5 id="底层原理-2">底层原理</h5>
 <p>AQS+CAS</p>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310164627977.png" alt="image-20240310164627977"></p>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310165253810.png" alt="image-20240310165253810"></p>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310165419183.png" alt="image-20240310165419183"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310164627977.png" alt="image-20240310164627977"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310165253810.png" alt="image-20240310165253810"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310165419183.png" alt="image-20240310165419183"></p>
 <h5 id="synchronized-与-Lock的区别">synchronized 与 Lock的区别</h5>
 <p><strong>语法层面</strong>：</p>
 <ul class="lvl-0">
@@ -486,9 +457,9 @@
 </ul>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DeadLockDemo</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">Object</span> <span class="variable">resource1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Object</span>();<span class="comment">//资源 1</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">Object</span> <span class="variable">resource2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Object</span>();<span class="comment">//资源 2</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (resource1) &#123;</span><br><span class="line">                System.out.println(Thread.currentThread() + <span class="string">&quot;get resource1&quot;</span>);</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(Thread.currentThread() + <span class="string">&quot;waiting get resource2&quot;</span>);</span><br><span class="line">                <span class="keyword">synchronized</span> (resource2) &#123;</span><br><span class="line">                    System.out.println(Thread.currentThread() + <span class="string">&quot;get resource2&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">&quot;线程 1&quot;</span>).start();</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(() -&gt; &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (resource2) &#123;</span><br><span class="line">                System.out.println(Thread.currentThread() + <span class="string">&quot;get resource2&quot;</span>);</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">                System.out.println(Thread.currentThread() + <span class="string">&quot;waiting get resource1&quot;</span>);</span><br><span class="line">                <span class="keyword">synchronized</span> (resource1) &#123;</span><br><span class="line">                    System.out.println(Thread.currentThread() + <span class="string">&quot;get resource1&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;, <span class="string">&quot;线程 2&quot;</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h4 id="诊断死锁">诊断死锁</h4>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310185626352.png" alt="image-20240310185626352" style="zoom:67%;">
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310185932837.png" alt="image-20240310185932837" style="zoom:67%;">
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310185656573.png" alt="image-20240310185656573" style="zoom:67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310185626352.png" alt="image-20240310185626352" style="zoom:67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310185932837.png" alt="image-20240310185932837" style="zoom:67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310185656573.png" alt="image-20240310185656573" style="zoom:67%;">
 <h3 id="乐观锁">乐观锁</h3>
 <ul class="lvl-0">
 <li class="lvl-2">
@@ -508,8 +479,8 @@
 <p><strong>乐观锁</strong>通常多用于<strong>写比较少</strong>的情况（多读场景，竞争较少），这样可以<strong>避免频繁加锁</strong>影响性能。不过，乐观锁主要针对的对象是单个共享变量（参考<code>java.util.concurrent.atomic</code>包下面的原子变量类）</p>
 <h4 id="CAS（Compare-And-Swap">CAS（Compare And Swap)</h4>
 <p>​</p>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310152254760.png" alt="image-20240310152254760" style="zoom:67%;">
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310153314915.png" alt="image-20240310153314915" style="zoom:67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310152254760.png" alt="image-20240310152254760" style="zoom:67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310153314915.png" alt="image-20240310153314915" style="zoom:67%;">
 <p>CAS 的全称是 <strong>Compare And Swap（比较与交换）</strong> ，用于实现乐观锁，被广泛应用于各大框架中。CAS 的思想很简单，就是用一个预期值和要更新的变量值进行比较，两值相等才会进行更新。</p>
 <p><mark>CAS 是一个原子操作，底层依赖于一条 CPU 的原子指令。</mark></p>
 <blockquote>
@@ -553,10 +524,10 @@
 <p>JUC里面的lock：加锁</p>
 </li>
 </ol>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310193152560.png" alt="image-20240310193152560" style="zoom:67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310193152560.png" alt="image-20240310193152560" style="zoom:67%;">
 <h3 id="可见性">可见性</h3>
 <p>让一个线程对共享变量的修改对另一个线程可见</p>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310193255054.png" alt="image-20240310193255054" style="zoom:67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310193255054.png" alt="image-20240310193255054" style="zoom:67%;">
 <h3 id="有序性">有序性</h3>
 <p>指令重排：处理器为了提高程序运行效率，可能会对输入代码进行优化，它不保证程序中各个语句的执行先后顺序同代码中的顺序一致，但是它会保证程序最终执行结果和代码顺序执行的结果是一致的</p>
 <p>要避免指令重排：volatile</p>
@@ -576,8 +547,8 @@
 <p><strong>提高线程的可管理性</strong>。线程是稀缺资源，如果无限制的创建，不仅会消耗系统资源，还会降低系统的稳定性，使用线程池可以进行统一的分配，调优和监控。</p>
 </li>
 </ul>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310193949527.png" alt="image-20240310193949527" style="zoom:67%;">
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310194453585.png" alt="image-20240310194453585"></p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310193949527.png" alt="image-20240310193949527" style="zoom:67%;">
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310194453585.png" alt="image-20240310194453585"></p>
 <p>1，任务在提交的时候，首先判断核心线程数是否已满，如果没有满则直接添加到工作线程执行</p>
 <p>2，如果核心线程数满了，则判断阻塞队列是否已满，如果没有满，当前任务存入阻塞队列</p>
 <p>3，如果阻塞队列也满了，则判断线程数是否小于最大线程数，如果满足条件，则使用临时线程执行任务</p>
@@ -644,7 +615,7 @@
 <p>ArrayBlockingQueue只有一把锁，读和写公用，性能相对于LinkedBlockingQueue差一些</p>
 </li>
 </ul>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310200853628.png" alt="image-20240310200853628"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310200853628.png" alt="image-20240310200853628"></p>
 <h3 id="如何确定核心线程数？">如何确定核心线程数？</h3>
 <p>在设置核心线程数之前，需要先熟悉一些执行线程池执行任务的类型</p>
 <ul class="lvl-0">
@@ -742,7 +713,7 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CachedThreadPoolCase</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Demo</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> Thread.currentThread().getName();</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">//修改睡眠时间，模拟线程执行需要花费的时间</span></span><br><span class="line">                Thread.sleep(<span class="number">100</span>);</span><br><span class="line"></span><br><span class="line">                System.out.println(name + <span class="string">&quot;执行完了&quot;</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="comment">//创建一个缓存的线程，没有核心线程数，最大线程数为Integer.MAX_VALUE</span></span><br><span class="line">        <span class="type">ExecutorService</span> <span class="variable">exec</span> <span class="operator">=</span> Executors.newCachedThreadPool();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">            exec.execute(<span class="keyword">new</span> <span class="title class_">Demo</span>());</span><br><span class="line">            Thread.sleep(<span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        exec.shutdown();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h4 id="newScheduledThreadPool">newScheduledThreadPool</h4>
 <p>提供了“延迟”和“周期执行”功能的ThreadPoolExecutor。</p>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505222203615.png" alt="image-20230505222203615"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505222203615.png" alt="image-20230505222203615"></p>
 <ul class="lvl-0">
 <li class="lvl-2">
 <p>适用场景：有定时和延迟执行的任务</p>
@@ -751,7 +722,7 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ScheduledThreadPoolCase</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Task</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> Thread.currentThread().getName();</span><br><span class="line"></span><br><span class="line">                System.out.println(name + <span class="string">&quot;, 开始：&quot;</span> + <span class="keyword">new</span> <span class="title class_">Date</span>());</span><br><span class="line">                Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">                System.out.println(name + <span class="string">&quot;, 结束：&quot;</span> + <span class="keyword">new</span> <span class="title class_">Date</span>());</span><br><span class="line"></span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="comment">//按照周期执行的线程池，核心线程数为2，最大线程数为Integer.MAX_VALUE</span></span><br><span class="line">        <span class="type">ScheduledExecutorService</span> <span class="variable">scheduledThreadPool</span> <span class="operator">=</span> Executors.newScheduledThreadPool(<span class="number">2</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;程序开始：&quot;</span> + <span class="keyword">new</span> <span class="title class_">Date</span>());</span><br><span class="line"></span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * schedule 提交任务到线程池中</span></span><br><span class="line"><span class="comment">         * 第一个参数：提交的任务</span></span><br><span class="line"><span class="comment">         * 第二个参数：任务执行的延迟时间</span></span><br><span class="line"><span class="comment">         * 第三个参数：时间单位</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        scheduledThreadPool.schedule(<span class="keyword">new</span> <span class="title class_">Task</span>(), <span class="number">0</span>, TimeUnit.SECONDS);</span><br><span class="line">        scheduledThreadPool.schedule(<span class="keyword">new</span> <span class="title class_">Task</span>(), <span class="number">1</span>, TimeUnit.SECONDS);</span><br><span class="line">        scheduledThreadPool.schedule(<span class="keyword">new</span> <span class="title class_">Task</span>(), <span class="number">5</span>, TimeUnit.SECONDS);</span><br><span class="line"></span><br><span class="line">        Thread.sleep(<span class="number">5000</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 关闭线程池</span></span><br><span class="line">        scheduledThreadPool.shutdown();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="为什么不建议用Executors创建线程池？">为什么不建议用Executors创建线程池？</h3>
 <p>Executors创建的线程池，最大线程数等于核心线程数，并且请求队列无界，可能会造成OOM</p>
-<img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310204839377.png" alt="image-20240310204839377" style="zoom:67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20240310204839377.png" alt="image-20240310204839377" style="zoom:67%;">
 <h3 id="execute-vs-submit-⭐">execute()  vs  submit() ⭐</h3>
 <ul class="lvl-0">
 <li class="lvl-2">
@@ -796,7 +767,7 @@
 <h3 id="概述">概述</h3>
 <p>ThreadLocal是多线程中对于<strong>解决线程安全</strong>的一个操作类，它会为每个线程都分配一个独立的线程副本从而解决了变量并发访问冲突的问题。ThreadLocal 同时实现了线程内的资源共享</p>
 <p>案例：使用JDBC操作数据库时，会将每一个线程的Connection放入各自的ThreadLocal中，从而保证每个线程都在各自的 Connection 上进行数据库的操作，避免A线程关闭了B线程的连接。</p>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224057228.png" alt="image-20230505224057228"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224057228.png" alt="image-20230505224057228"></p>
 <h3 id="ThreadLocal基本使用">ThreadLocal基本使用</h3>
 <p>三个主要方法：</p>
 <ul class="lvl-0">
@@ -815,13 +786,13 @@
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Thread</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line">    <span class="comment">//......</span></span><br><span class="line">    <span class="comment">//与此线程有关的ThreadLocal值。由ThreadLocal类维护</span></span><br><span class="line">    ThreadLocal.<span class="type">ThreadLocalMap</span> <span class="variable">threadLocals</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//与此线程有关的InheritableThreadLocal值。由InheritableThreadLocal类维护</span></span><br><span class="line">    ThreadLocal.<span class="type">ThreadLocalMap</span> <span class="variable">inheritableThreadLocals</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="comment">//......</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>从上面<code>Thread</code>类 源代码可以看出<code>Thread</code> 类中有一个 <code>threadLocals</code> 和 一个 <code>inheritableThreadLocals</code> 变量，它们都是 <code>ThreadLocalMap</code> 类型的变量,我们可以把 <code>ThreadLocalMap</code> 理解为<code>ThreadLocal</code> 类实现的定制化的 <code>HashMap</code>。默认情况下这两个变量都是 null，只有当前线程调用 <code>ThreadLocal</code> 类的 <code>set</code>或<code>get</code>方法时才创建它们，实际上调用这两个方法的时候，我们调用的是<code>ThreadLocalMap</code>类对应的 <code>get()</code>、<code>set()</code>方法。</p>
 <p>ThreadLocal本质来说就是一个线程内部存储类，从而让多个线程只操作自己内部的值，从而实现线程数据隔离</p>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224341410.png" alt="image-20230505224341410"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224341410.png" alt="image-20230505224341410"></p>
 <p>在ThreadLocal中有一个内部类叫做ThreadLocalMap，类似于HashMap</p>
 <p>ThreadLocalMap中有一个属性table数组，这个是真正存储数据的位置</p>
 <p><strong>set方法</strong></p>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224626253.png" alt="image-20230505224626253"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224626253.png" alt="image-20230505224626253"></p>
 <p><strong>get方法/remove方法</strong></p>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224715087.png" alt="image-20230505224715087"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224715087.png" alt="image-20230505224715087"></p>
 <p>通过上面这些内容，我们足以通过得出结论：<strong>最终的变量是放在了当前线程的 <code>ThreadLocalMap</code> 中，并不是存在 <code>ThreadLocal</code> 上，<code>ThreadLocal</code> 可以理解为只是<code>ThreadLocalMap</code>的封装，传递了变量值。</strong><code>ThrealLocal</code> 类中可以通过<code>Thread.currentThread()</code>获取到当前线程对象后，直接通过<code>getMap(Thread t)</code>可以访问到该线程的<code>ThreadLocalMap</code>对象。</p>
 <p><mark>实际上<code>key</code>并不是<code>ThreadLocal</code>本身，而是它的一个<strong>弱引用</strong></mark></p>
 <h3 id="ThreadLocal-内存泄露问题">ThreadLocal-内存泄露问题</h3>
@@ -831,17 +802,17 @@
 <p>强引用：最为普通的引用方式，表示一个对象处于有用且必须的状态，如果一个对象具有强引用，则GC并不会回收它。即便堆中内存不足了，<strong>宁可出现OOM，也不会对其进行回收</strong></p>
 </li>
 </ul>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224755797.png" alt="image-20230505224755797"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224755797.png" alt="image-20230505224755797"></p>
 <ul class="lvl-0">
 <li class="lvl-2">
 <p>弱引用：表示一个对象处于可能有用且非必须的状态。在GC线程扫描内存区域时，一旦发现弱引用，就会回收到弱引用相关联的对象。对于弱引用的回收，无关内存区域是否足够，一旦发现则会被回收</p>
 </li>
 </ul>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224812015.png" alt="image-20230505224812015"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224812015.png" alt="image-20230505224812015"></p>
 <p>每一个Thread维护一个ThreadLocalMap，在ThreadLocalMap中的Entry对象继承了WeakReference。其中key为使用弱引用的ThreadLocal实例，value为线程变量的副本</p>
 <p><code>ThreadLocalMap</code> 中使用的 key 为 <code>ThreadLocal</code> 的弱引用，而 value 是强引用。所以，如果 <code>ThreadLocal</code> 没有被外部强引用的情况下，在垃圾回收的时候，key 会被清理掉，而 value 不会被清理掉。</p>
 <p>这样一来，<code>ThreadLocalMap</code> 中就会出现 key 为 null 的 Entry。假如我们不做任何措施的话，value 永远无法被 GC 回收，这个时候就可能会产生内存泄露。<code>ThreadLocalMap</code> 实现中已经考虑了这种情况，在调用 <code>set()</code>、<code>get()</code>、<code>remove()</code> 方法的时候，会清理掉 key 为 null 的记录。使用完 <code>ThreadLocal</code>方法后最好手动调用<code>remove()</code>方法</p>
-<p><img src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224857538.png" alt="image-20230505224857538"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="https://neo-typora.oss-cn-nanjing.aliyuncs.com/images/blog_images%2FJUC.assets%2Fimage-20230505224857538.png" alt="image-20230505224857538"></p>
 <p>在使用ThreadLocal的时候，强烈建议：<strong>务必手动remove</strong></p>
 <p><strong>实际上：</strong></p>
 <p>ThreadLocal的源码中设计了自动清理key为null的entry的代码逻辑。主要逻辑如下：</p>
@@ -857,8 +828,403 @@
 <p>插入后，开始进行过期元素的清理。</p>
 <p><strong>清理过期元素的方法有</strong>：探测式清理、启发式清理</p>
 <p>探测式清理从<code>slotToExpunge</code>开始向后清除过期元素，同时将没有过期的元素进行重新哈希，更新元素的位置，如果发生了哈冲突，则向后进行线性探测</p>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://walterke1001.github.io/">Walter</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://walterke1001.github.io/2024/06/08/JUC%E7%9F%A5%E8%AF%86%E7%82%B9/">http://walterke1001.github.io/2024/06/08/JUC%E7%9F%A5%E8%AF%86%E7%82%B9/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://walterke1001.github.io" target="_blank">浅唱</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java/">java</a></div><div class="post_share"><div class="social-share" data-image="https://mybgimages.oss-cn-beijing.aliyuncs.com/bg/5.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-full"><a href="/2024/06/09/halo%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/" title="halo安装部署"><img class="cover" src="/img/default_cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">halo安装部署</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Walter</div><div class="author-info__description">Day day up!</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/walterke1001" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">记录我的技术成长历程</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">多线程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.1.</span> <span class="toc-text">进程和线程的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B9%B6%E5%8F%91%E5%92%8C%E5%B9%B6%E8%A1%8C"><span class="toc-number">1.2.</span> <span class="toc-text">并发和并行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-number">1.3.</span> <span class="toc-text">创建线程的方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Runnable%E5%92%8CCallable%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"><span class="toc-number">1.3.1.</span> <span class="toc-text">Runnable和Callable有什么区别</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#run-%E5%92%8C-start-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">1.3.2.</span> <span class="toc-text">run() 和 start()的区别</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84%E7%8A%B6%E6%80%81%E5%8F%8A%E8%BD%AC%E5%8C%96"><span class="toc-number">1.4.</span> <span class="toc-text">线程的状态及转化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E6%8E%A7%E5%88%B6%E7%BA%BF%E7%A8%8B%E7%9A%84%E8%BF%90%E8%A1%8C%E9%A1%BA%E5%BA%8F-join"><span class="toc-number">1.5.</span> <span class="toc-text">如何控制线程的运行顺序 join()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#notify-%E5%92%8Cnotifyall"><span class="toc-number">1.6.</span> <span class="toc-text">notify()和notifyall()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sleep-%E5%92%8Cwait-%E2%AD%90"><span class="toc-number">1.7.</span> <span class="toc-text">sleep()和wait() ⭐</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%81%9C%E6%AD%A2%E7%BA%BF%E7%A8%8B"><span class="toc-number">1.8.</span> <span class="toc-text">停止线程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#synchronized%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">synchronized底层原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-number">2.1.</span> <span class="toc-text">基本使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86"><span class="toc-number">2.2.</span> <span class="toc-text">底层原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E9%A5%B0%E5%90%8C%E6%AD%A5%E4%BB%A3%E7%A0%81%E5%9D%97%E7%9A%84%E6%83%85%E5%86%B5"><span class="toc-number">2.2.1.</span> <span class="toc-text">修饰同步代码块的情况</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E9%A5%B0%E6%96%B9%E6%B3%95%E7%9A%84%E6%83%85%E5%86%B5"><span class="toc-number">2.2.2.</span> <span class="toc-text">修饰方法的情况</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%94%81%E5%8D%87%E7%BA%A7"><span class="toc-number">2.3.</span> <span class="toc-text">锁升级</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#volatile"><span class="toc-number">3.</span> <span class="toc-text">volatile</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%9D%E8%AF%81%E7%BA%BF%E7%A8%8B%E9%97%B4%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7"><span class="toc-number">3.1.</span> <span class="toc-text">保证线程间的可见性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A6%81%E6%AD%A2%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92%E5%BA%8F"><span class="toc-number">3.2.</span> <span class="toc-text">禁止指令重排序</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%8C%E9%87%8D%E6%A0%A1%E9%AA%8C%E9%94%81-%E5%AE%9E%E7%8E%B0%E5%AF%B9%E8%B1%A1%E5%8D%95%E4%BE%8B%EF%BC%88%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%EF%BC%89%EF%BC%9A"><span class="toc-number">3.2.1.</span> <span class="toc-text">双重校验锁 实现对象单例（线程安全）：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#synchronized%E5%92%8Cvolatile"><span class="toc-number">3.3.</span> <span class="toc-text">synchronized和volatile</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JMM-Java%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="toc-number">4.</span> <span class="toc-text">JMM(Java内存模型)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%94%81"><span class="toc-number">5.</span> <span class="toc-text">锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%82%B2%E8%A7%82%E9%94%81"><span class="toc-number">5.1.</span> <span class="toc-text">悲观锁</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#AQS%EF%BC%88%E5%85%AC%E5%B9%B3%E7%9A%84%EF%BC%89"><span class="toc-number">5.1.1.</span> <span class="toc-text">AQS（公平的）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ReentrantLock"><span class="toc-number">5.1.2.</span> <span class="toc-text">ReentrantLock</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86-2"><span class="toc-number">5.1.2.1.</span> <span class="toc-text">底层原理</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#synchronized-%E4%B8%8E-Lock%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">5.1.2.2.</span> <span class="toc-text">synchronized 与 Lock的区别</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Semaphore"><span class="toc-number">5.1.3.</span> <span class="toc-text">Semaphore</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-number">5.1.3.1.</span> <span class="toc-text">原理</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%BB%E9%94%81"><span class="toc-number">5.1.4.</span> <span class="toc-text">死锁</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%8A%E6%96%AD%E6%AD%BB%E9%94%81"><span class="toc-number">5.1.5.</span> <span class="toc-text">诊断死锁</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B9%90%E8%A7%82%E9%94%81"><span class="toc-number">5.2.</span> <span class="toc-text">乐观锁</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%82%B2%E8%A7%82%E9%94%81%E4%B9%90%E8%A7%82%E9%94%81%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9"><span class="toc-number">5.2.1.</span> <span class="toc-text">悲观锁乐观锁如何选择</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CAS%EF%BC%88Compare-And-Swap"><span class="toc-number">5.2.2.</span> <span class="toc-text">CAS（Compare And Swap)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CAS%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">5.2.3.</span> <span class="toc-text">CAS存在的问题</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%9A%84%E6%89%A7%E8%A1%8C%E5%AE%89%E5%85%A8"><span class="toc-number">6.</span> <span class="toc-text">多线程的执行安全</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%AD%90%E6%80%A7"><span class="toc-number">6.1.</span> <span class="toc-text">原子性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E8%A7%81%E6%80%A7"><span class="toc-number">6.2.</span> <span class="toc-text">可见性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%89%E5%BA%8F%E6%80%A7"><span class="toc-number">6.3.</span> <span class="toc-text">有序性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0"><span class="toc-number">7.</span> <span class="toc-text">线程池</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%8F%82%E6%95%B0%E3%80%81%E5%8E%9F%E7%90%86-%E2%AD%90"><span class="toc-number">7.1.</span> <span class="toc-text">线程池参数、原理  ⭐</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8B%92%E7%BB%9D%E7%AD%96%E7%95%A5"><span class="toc-number">7.2.</span> <span class="toc-text">拒绝策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%B8%B8%E7%94%A8%E7%9A%84%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97"><span class="toc-number">7.3.</span> <span class="toc-text">线程池常用的阻塞队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9A%E6%A0%B8%E5%BF%83%E7%BA%BF%E7%A8%8B%E6%95%B0%EF%BC%9F"><span class="toc-number">7.4.</span> <span class="toc-text">如何确定核心线程数？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E7%A7%8D%E7%B1%BB"><span class="toc-number">7.5.</span> <span class="toc-text">线程池的种类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#newFixedThreadPool"><span class="toc-number">7.5.1.</span> <span class="toc-text">newFixedThreadPool</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#newSingleThreadExecutor"><span class="toc-number">7.5.2.</span> <span class="toc-text">newSingleThreadExecutor</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#newCachedThreadPool"><span class="toc-number">7.5.3.</span> <span class="toc-text">newCachedThreadPool</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#newScheduledThreadPool"><span class="toc-number">7.5.4.</span> <span class="toc-text">newScheduledThreadPool</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%BB%BA%E8%AE%AE%E7%94%A8Executors%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B%E6%B1%A0%EF%BC%9F"><span class="toc-number">7.6.</span> <span class="toc-text">为什么不建议用Executors创建线程池？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#execute-vs-submit-%E2%AD%90"><span class="toc-number">7.7.</span> <span class="toc-text">execute()  vs  submit() ⭐</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shutdown-VS-shutdownNow"><span class="toc-number">7.8.</span> <span class="toc-text">shutdown() VS shutdownNow()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#isTerminated-VS-isShutdown"><span class="toc-number">7.9.</span> <span class="toc-text">isTerminated()  VS  isShutdown()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E5%B7%A5%E5%8E%82"><span class="toc-number">7.10.</span> <span class="toc-text">线程工厂</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ThreadLocal"><span class="toc-number">8.</span> <span class="toc-text">ThreadLocal</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">8.1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ThreadLocal%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-number">8.2.</span> <span class="toc-text">ThreadLocal基本使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ThreadLocal%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="toc-number">8.3.</span> <span class="toc-text">ThreadLocal的实现原理&amp;源码解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ThreadLocal-%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E9%97%AE%E9%A2%98"><span class="toc-number">8.4.</span> <span class="toc-text">ThreadLocal-内存泄露问题</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/06/10/%E5%8A%A0%E5%AF%86%E6%B5%8B%E8%AF%95/" title="加密测试">加密测试</a><time datetime="2024-06-10T13:07:03.000Z" title="发表于 2024-06-10 21:07:03">2024-06-10</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/" title="Redis知识点">Redis知识点</a><time datetime="2024-06-09T12:09:56.000Z" title="发表于 2024-06-09 20:09:56">2024-06-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/06/09/halo%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/" title="halo安装部署">halo安装部署</a><time datetime="2024-06-09T07:38:28.000Z" title="发表于 2024-06-09 15:38:28">2024-06-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/06/08/JUC%E7%9F%A5%E8%AF%86%E7%82%B9/" title="JUC知识点">JUC知识点</a><time datetime="2024-06-08T10:48:39.000Z" title="发表于 2024-06-08 18:48:39">2024-06-08</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2024 By Walter</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">♥</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
-POWERMODE.shake = false;
-POWERMODE.mobile = false;
-document.body.addEventListener('input', POWERMODE);
-</script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="false" data-text=",LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/metingjs/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div></body></html>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+</article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"><div class="note">较新文章</div><a href="/2024/06/09/halo%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/">halo安装部署</a></div><div class="item" id="next"></div></section></div>
+
+
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">Walter</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1">Stellar 1.28.1</a> 主题创建。本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B"><span class="toc-text">多线程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B%E5%92%8C%E7%BA%BF%E7%A8%8B%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">进程和线程的区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B9%B6%E5%8F%91%E5%92%8C%E5%B9%B6%E8%A1%8C"><span class="toc-text">并发和并行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-text">创建线程的方式</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Runnable%E5%92%8CCallable%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"><span class="toc-text">Runnable和Callable有什么区别</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#run-%E5%92%8C-start-%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">run() 和 start()的区别</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E7%9A%84%E7%8A%B6%E6%80%81%E5%8F%8A%E8%BD%AC%E5%8C%96"><span class="toc-text">线程的状态及转化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E6%8E%A7%E5%88%B6%E7%BA%BF%E7%A8%8B%E7%9A%84%E8%BF%90%E8%A1%8C%E9%A1%BA%E5%BA%8F-join"><span class="toc-text">如何控制线程的运行顺序 join()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#notify-%E5%92%8Cnotifyall"><span class="toc-text">notify()和notifyall()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sleep-%E5%92%8Cwait-%E2%AD%90"><span class="toc-text">sleep()和wait() ⭐</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%81%9C%E6%AD%A2%E7%BA%BF%E7%A8%8B"><span class="toc-text">停止线程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#synchronized%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86"><span class="toc-text">synchronized底层原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-text">基本使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86"><span class="toc-text">底层原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E9%A5%B0%E5%90%8C%E6%AD%A5%E4%BB%A3%E7%A0%81%E5%9D%97%E7%9A%84%E6%83%85%E5%86%B5"><span class="toc-text">修饰同步代码块的情况</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%AE%E9%A5%B0%E6%96%B9%E6%B3%95%E7%9A%84%E6%83%85%E5%86%B5"><span class="toc-text">修饰方法的情况</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%94%81%E5%8D%87%E7%BA%A7"><span class="toc-text">锁升级</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#volatile"><span class="toc-text">volatile</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%9D%E8%AF%81%E7%BA%BF%E7%A8%8B%E9%97%B4%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7"><span class="toc-text">保证线程间的可见性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A6%81%E6%AD%A2%E6%8C%87%E4%BB%A4%E9%87%8D%E6%8E%92%E5%BA%8F"><span class="toc-text">禁止指令重排序</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%8C%E9%87%8D%E6%A0%A1%E9%AA%8C%E9%94%81-%E5%AE%9E%E7%8E%B0%E5%AF%B9%E8%B1%A1%E5%8D%95%E4%BE%8B%EF%BC%88%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%EF%BC%89%EF%BC%9A"><span class="toc-text">双重校验锁 实现对象单例（线程安全）：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#synchronized%E5%92%8Cvolatile"><span class="toc-text">synchronized和volatile</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JMM-Java%E5%86%85%E5%AD%98%E6%A8%A1%E5%9E%8B"><span class="toc-text">JMM(Java内存模型)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%94%81"><span class="toc-text">锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%82%B2%E8%A7%82%E9%94%81"><span class="toc-text">悲观锁</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#AQS%EF%BC%88%E5%85%AC%E5%B9%B3%E7%9A%84%EF%BC%89"><span class="toc-text">AQS（公平的）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ReentrantLock"><span class="toc-text">ReentrantLock</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86-2"><span class="toc-text">底层原理</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#synchronized-%E4%B8%8E-Lock%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-text">synchronized 与 Lock的区别</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Semaphore"><span class="toc-text">Semaphore</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-text">原理</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%AD%BB%E9%94%81"><span class="toc-text">死锁</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%8A%E6%96%AD%E6%AD%BB%E9%94%81"><span class="toc-text">诊断死锁</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B9%90%E8%A7%82%E9%94%81"><span class="toc-text">乐观锁</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%82%B2%E8%A7%82%E9%94%81%E4%B9%90%E8%A7%82%E9%94%81%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9"><span class="toc-text">悲观锁乐观锁如何选择</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CAS%EF%BC%88Compare-And-Swap"><span class="toc-text">CAS（Compare And Swap)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CAS%E5%AD%98%E5%9C%A8%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-text">CAS存在的问题</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%9A%84%E6%89%A7%E8%A1%8C%E5%AE%89%E5%85%A8"><span class="toc-text">多线程的执行安全</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E5%AD%90%E6%80%A7"><span class="toc-text">原子性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E8%A7%81%E6%80%A7"><span class="toc-text">可见性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%89%E5%BA%8F%E6%80%A7"><span class="toc-text">有序性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0"><span class="toc-text">线程池</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%8F%82%E6%95%B0%E3%80%81%E5%8E%9F%E7%90%86-%E2%AD%90"><span class="toc-text">线程池参数、原理  ⭐</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8B%92%E7%BB%9D%E7%AD%96%E7%95%A5"><span class="toc-text">拒绝策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E5%B8%B8%E7%94%A8%E7%9A%84%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97"><span class="toc-text">线程池常用的阻塞队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%A1%AE%E5%AE%9A%E6%A0%B8%E5%BF%83%E7%BA%BF%E7%A8%8B%E6%95%B0%EF%BC%9F"><span class="toc-text">如何确定核心线程数？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E6%B1%A0%E7%9A%84%E7%A7%8D%E7%B1%BB"><span class="toc-text">线程池的种类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#newFixedThreadPool"><span class="toc-text">newFixedThreadPool</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#newSingleThreadExecutor"><span class="toc-text">newSingleThreadExecutor</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#newCachedThreadPool"><span class="toc-text">newCachedThreadPool</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#newScheduledThreadPool"><span class="toc-text">newScheduledThreadPool</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E5%BB%BA%E8%AE%AE%E7%94%A8Executors%E5%88%9B%E5%BB%BA%E7%BA%BF%E7%A8%8B%E6%B1%A0%EF%BC%9F"><span class="toc-text">为什么不建议用Executors创建线程池？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#execute-vs-submit-%E2%AD%90"><span class="toc-text">execute()  vs  submit() ⭐</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shutdown-VS-shutdownNow"><span class="toc-text">shutdown() VS shutdownNow()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#isTerminated-VS-isShutdown"><span class="toc-text">isTerminated()  VS  isShutdown()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E5%B7%A5%E5%8E%82"><span class="toc-text">线程工厂</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ThreadLocal"><span class="toc-text">ThreadLocal</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ThreadLocal%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-text">ThreadLocal基本使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ThreadLocal%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86-%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="toc-text">ThreadLocal的实现原理&amp;源码解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ThreadLocal-%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E9%97%AE%E9%A2%98"><span class="toc-text">ThreadLocal-内存泄露问题</span></a></li></ol></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10.46 1.25h3.08c1.603 0 2.86 0 3.864.095c1.023.098 1.861.3 2.6.752a5.75 5.75 0 0 1 1.899 1.899c.452.738.654 1.577.752 2.6c.095 1.004.095 2.261.095 3.865v1.067c0 1.141 0 2.036-.05 2.759c-.05.735-.153 1.347-.388 1.913a5.75 5.75 0 0 1-3.112 3.112c-.805.334-1.721.408-2.977.43a10.81 10.81 0 0 0-.929.036c-.198.022-.275.054-.32.08c-.047.028-.112.078-.224.232c-.121.166-.258.396-.476.764l-.542.916c-.773 1.307-2.69 1.307-3.464 0l-.542-.916a10.605 10.605 0 0 0-.476-.764c-.112-.154-.177-.204-.224-.232c-.045-.026-.122-.058-.32-.08c-.212-.023-.49-.03-.93-.037c-1.255-.021-2.171-.095-2.976-.429A5.75 5.75 0 0 1 1.688 16.2c-.235-.566-.338-1.178-.389-1.913c-.049-.723-.049-1.618-.049-2.76v-1.066c0-1.604 0-2.86.095-3.865c.098-1.023.3-1.862.752-2.6a5.75 5.75 0 0 1 1.899-1.899c.738-.452 1.577-.654 2.6-.752C7.6 1.25 8.857 1.25 10.461 1.25M6.739 2.839c-.914.087-1.495.253-1.959.537A4.25 4.25 0 0 0 3.376 4.78c-.284.464-.45 1.045-.537 1.96c-.088.924-.089 2.11-.089 3.761v1c0 1.175 0 2.019.046 2.685c.045.659.131 1.089.278 1.441a4.25 4.25 0 0 0 2.3 2.3c.515.214 1.173.294 2.429.316h.031c.398.007.747.013 1.037.045c.311.035.616.104.909.274c.29.17.5.395.682.645c.169.232.342.525.538.856l.559.944a.52.52 0 0 0 .882 0l.559-.944c.196-.331.37-.624.538-.856c.182-.25.392-.476.682-.645c.293-.17.598-.24.909-.274c.29-.032.639-.038 1.037-.045h.032c1.255-.022 1.913-.102 2.428-.316a4.25 4.25 0 0 0 2.3-2.3c.147-.352.233-.782.278-1.441c.046-.666.046-1.51.046-2.685v-1c0-1.651 0-2.837-.089-3.762c-.087-.914-.253-1.495-.537-1.959a4.25 4.25 0 0 0-1.403-1.403c-.464-.284-1.045-.45-1.96-.537c-.924-.088-2.11-.089-3.761-.089h-3c-1.651 0-2.837 0-3.762.089" clip-rule="evenodd"/><path fill="currentColor" d="M9 11a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><span>参与讨论</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js`,
+    marked: `https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+
+<!-- required -->
+<script src="/js/main.js?v=1.28.1" async></script>
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.bootcdn.net/ajax/libs/flying-pages/2.1.2/flying-pages.min.js"></script><script defer src="https://cdn.bootcdn.net/ajax/libs/vanilla-lazyload/17.8.4/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.min.css`,
+    js: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.umd.min.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div></body></html>

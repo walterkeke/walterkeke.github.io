@@ -1,181 +1,141 @@
-<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Redis知识点 | 浅唱</title><meta name="author" content="Walter"><meta name="copyright" content="Walter"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Redis数据结构和类型 Redis有5种数据类型：字符串、链表、哈希、集合、有序集合 与8种数据结构分别对应：    String List Hash Set ZSet     SDS（简单动态字符串） LinkedList、ZipList、QuickList Dict、ZipList Dict、IntSet ZipList、SkipList    String 应用场景：   需要存储常规数据">
+
+<!DOCTYPE html><html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="hexo-theme" content="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1" theme-name="Stellar" theme-version="1.28.1">
+  
+  <meta name="generator" content="Hexo 7.2.0">
+  <meta http-equiv='x-dns-prefetch-control' content='on' />
+  
+  <meta name="renderer" content="webkit">
+  <meta name="force-rendering" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
+  <meta name="HandheldFriendly" content="True" >
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f9fafb">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000">
+  
+  <title>Redis知识点 - Walter's Blog</title>
+
+  
+    <meta name="description" content="Redis数据结构和类型 Redis有5种数据类型：字符串、链表、哈希、集合、有序集合 与8种数据结构分别对应：    String List Hash Set ZSet     SDS（简单动态字符串） LinkedList、ZipList、QuickList Dict、ZipList Dict、IntSet ZipList、SkipList    String 应用场景：   需要存储常规数据">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Redis知识点">
 <meta property="og:url" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/index.html">
-<meta property="og:site_name" content="浅唱">
+<meta property="og:site_name" content="Walter&#39;s Blog">
 <meta property="og:description" content="Redis数据结构和类型 Redis有5种数据类型：字符串、链表、哈希、集合、有序集合 与8种数据结构分别对应：    String List Hash Set ZSet     SDS（简单动态字符串） LinkedList、ZipList、QuickList Dict、ZipList Dict、IntSet ZipList、SkipList    String 应用场景：   需要存储常规数据">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://walterke1001.github.io/images/img_1.jpg">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525165011087-1716727704727-5.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525165730721-1716727704727-6.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525165753049-1716727704727-7.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525213942483-1716727704727-8.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525165837030-1716727704727-9.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525221336985-1716727704727-10.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525184121578-1716727704727-11.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525195602137-1716727704727-12.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525195611485-1716727704727-13.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240328151854168.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309155058324.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309155838160.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525195641720-1716727704727-14.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525195649976-1716727704727-15.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525203241837-1716727704727-16.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309163036528.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240328153910223.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309163354767.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240328174634915.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240328174655246.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309165448439.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240317204441365.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240317205137985.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309170037181.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240317210145873.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240317210327844.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309170151593.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171013569.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171351195.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171530051.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171916468.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240411222915047.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171955634.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309172248463.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309172533656.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309173007463.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309173423123.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309173640388.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309174123755.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309174300755.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309174732844.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240411191731597.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240412203613497.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240528164002270.png">
+<meta property="og:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240528165246469.png">
 <meta property="article:published_time" content="2024-06-09T12:09:56.000Z">
 <meta property="article:modified_time" content="2024-06-10T12:39:41.852Z">
 <meta property="article:author" content="Walter">
 <meta property="article:tag" content="Redis">
 <meta property="article:tag" content="KV数据库">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://walterke1001.github.io/images/img_1.jpg"><link rel="shortcut icon" href="/img/favicon.ico"><link rel="canonical" href="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
-  root: '/',
-  algolia: undefined,
-  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
-  translate: undefined,
-  noticeOutdate: undefined,
-  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
-  copy: {
-    success: '复制成功',
-    error: '复制错误',
-    noSupport: '浏览器不支持'
-  },
-  relativeDate: {
-    homepage: false,
-    post: false
-  },
-  runtime: '天',
-  dateSuffix: {
-    just: '刚刚',
-    min: '分钟前',
-    hour: '小时前',
-    day: '天前',
-    month: '个月前'
-  },
-  copyright: undefined,
-  lightbox: 'fancybox',
-  Snackbar: undefined,
-  infinitegrid: {
-    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
-    buttonText: '加载更多'
-  },
-  isPhotoFigcaption: false,
-  islazyload: false,
-  isAnchor: false,
-  percent: {
-    toc: true,
-    rightside: false,
-  },
-  autoDarkmode: false
-}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
-  title: 'Redis知识点',
-  isPost: true,
-  isHome: false,
-  isHighlightShrink: false,
-  isToc: true,
-  postUpdate: '2024-06-10 20:39:41'
-}</script><script>(win=>{
-      win.saveToLocal = {
-        set: (key, value, ttl) => {
-          if (ttl === 0) return
-          const now = Date.now()
-          const expiry = now + ttl * 86400000
-          const item = {
-            value,
-            expiry
-          }
-          localStorage.setItem(key, JSON.stringify(item))
-        },
-      
-        get: key => {
-          const itemStr = localStorage.getItem(key)
-      
-          if (!itemStr) {
-            return undefined
-          }
-          const item = JSON.parse(itemStr)
-          const now = Date.now()
-      
-          if (now > item.expiry) {
-            localStorage.removeItem(key)
-            return undefined
-          }
-          return item.value
-        }
-      }
-    
-      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
-        const script = document.createElement('script')
-        script.src = url
-        script.async = true
-        script.onerror = reject
-        script.onload = script.onreadystatechange = function() {
-          const loadState = this.readyState
-          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-          script.onload = script.onreadystatechange = null
-          resolve()
-        }
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525165011087-1716727704727-5.png">
+  
+  
+  
+  <meta name="keywords" content="Redis,KV数据库">
 
-        Object.keys(attr).forEach(key => {
-          script.setAttribute(key, attr[key])
-        })
+  <!-- feed -->
+  
 
-        document.head.appendChild(script)
-      })
+  <link rel="stylesheet" href="/css/main.css?v=1.28.1">
+
+  
+
+  
+
+  
+</head>
+<body>
+
+<div class="l_body s:aa content tech" id="start" layout="post" ><aside class="l_left"><div class="leftbar-container">
+
+
+<header class="header"><div class="logo-wrap"><a class="avatar" href="/about/"><div class="bg" style="opacity:0;background-image:url(https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/rainbow64@3x.webp);"></div><img no-lazy class="avatar" src="undefined" onerror="javascript:this.classList.add('error');this.src='https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/image/2659360.svg';"></a><a class="title" href="/"><div class="main" ff="title">Walter's Blog</div></a></div></header>
+
+<div class="nav-area">
+<div class="search-wrapper" id="search-wrapper"><form class="search-form"><a class="search-button" onclick="document.getElementById(&quot;search-input&quot;).focus();"><svg t="1705074644177" viewBox="0 0 1025 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1560" width="200" height="200"><path d="M1008.839137 935.96571L792.364903 719.491476a56.783488 56.783488 0 0 0-80.152866 0 358.53545 358.53545 0 1 1 100.857314-335.166073 362.840335 362.840335 0 0 1-3.689902 170.145468 51.248635 51.248635 0 1 0 99.217358 26.444296 462.057693 462.057693 0 1 0-158.255785 242.303546l185.930047 185.725053a51.248635 51.248635 0 0 0 72.568068 0 51.248635 51.248635 0 0 0 0-72.978056z" p-id="1561"></path><path d="M616.479587 615.969233a50.428657 50.428657 0 0 0-61.498362-5.534852 174.655348 174.655348 0 0 1-177.525271 3.484907 49.403684 49.403684 0 0 0-58.833433 6.76482l-3.074918 2.869923a49.403684 49.403684 0 0 0 8.609771 78.10292 277.767601 277.767601 0 0 0 286.992355-5.739847 49.403684 49.403684 0 0 0 8.404776-76.667958z" p-id="1562"></path></svg></a><input type="text" class="search-input" id="search-input" placeholder="站内搜索"></form><div id="search-result"></div><div class="search-no-result">没有找到内容！</div></div>
+
+
+<nav class="menu dis-select"></nav>
+</div>
+<div class="widgets">
+
+
+<widget class="widget-wrapper post-list"><div class="widget-header dis-select"><span class="name">最近更新</span></div><div class="widget-body fs14"><a class="item title" href="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/"><span class="title">Redis知识点</span></a><a class="item title" href="/2024/06/09/halo%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/"><span class="title">halo安装部署</span></a><a class="item title" href="/2024/06/08/JUC%E7%9F%A5%E8%AF%86%E7%82%B9/"><span class="title">JUC知识点</span></a></div></widget>
+</div>
+
+</div></aside><div class="l_main" id="main">
+
+
+
+
+
+<div class="article banner top">
+  <div class="content">
+    <div class="top bread-nav footnote"><div class="left"><div class="flex-row" id="breadcrumb"><a class="cap breadcrumb" href="/">主页</a>
+<span class="sep"></span><a class="cap breadcrumb" href="/">文章</a><span class="sep"></span><a class="cap breadcrumb-link" href="/categories/Redis/">Redis</a> <span class="sep"></span> <a class="cap breadcrumb-link" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></div>
+<div class="flex-row" id="post-meta"><span class="text created">发布于：<time datetime="2024-06-09T12:09:56.000Z">2024-06-09</time></span><span class="sep updated"></span><span class="text updated">更新于：<time datetime="2024-06-10T12:39:41.852Z">2024-06-10</time></span></div></div></div>
     
-      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = url
-        if (id) link.id = id
-        link.onerror = reject
-        link.onload = link.onreadystatechange = function() {
-          const loadState = this.readyState
-          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
-          link.onload = link.onreadystatechange = null
-          resolve()
-        }
-        document.head.appendChild(link)
-      })
-    
-      win.activateDarkMode = () => {
-        document.documentElement.setAttribute('data-theme', 'dark')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
-        }
-      }
-      win.activateLightMode = () => {
-        document.documentElement.setAttribute('data-theme', 'light')
-        if (document.querySelector('meta[name="theme-color"]') !== null) {
-          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
-        }
-      }
-      const t = saveToLocal.get('theme')
-    
-        if (t === 'dark') activateDarkMode()
-        else if (t === 'light') activateLightMode()
+    <div class="bottom only-title">
       
-      const asideStatus = saveToLocal.get('aside-status')
-      if (asideStatus !== undefined) {
-        if (asideStatus === 'hide') {
-          document.documentElement.classList.add('hide-aside')
-        } else {
-          document.documentElement.classList.remove('hide-aside')
-        }
-      }
+      <div class="text-area">
+        <h1 class="text title"><span>Redis知识点</span></h1>
+        
+      </div>
+    </div>
     
-      const detectApple = () => {
-        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
-          document.documentElement.classList.add('apple')
-        }
-      }
-      detectApple()
-    })(window)</script><link rel="stylesheet" href="/css/modify.css"><meta name="generator" content="Hexo 7.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
-  const $loadingBox = document.getElementById('loading-box')
-  const $body = document.body
-  const preloader = {
-    endLoading: () => {
-      $body.style.overflow = ''
-      $loadingBox.classList.add('loaded')
-    },
-    initLoading: () => {
-      $body.style.overflow = 'hidden'
-      $loadingBox.classList.remove('loaded')
-    }
-  }
-
-  preloader.initLoading()
-  window.addEventListener('load',() => { preloader.endLoading() })
-
-  if (false) {
-    document.addEventListener('pjax:send', () => { preloader.initLoading() })
-    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
-  }
-})()</script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/avatar.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/share/"><i class="fa-fw fa fa-comments"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/images/img_1.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="浅唱"><span class="site-name">浅唱</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-graduation-cap"></i><span> 文章</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/categories/"><i class="fa-fw fa fa-archive"></i><span> 分类</span></a></li><li><a class="site-page child" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-folder-open"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 生活</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/share/"><i class="fa-fw fa fa-comments"></i><span> 分享</span></a></li><li><a class="site-page child" href="/photos/"><i class="fa-fw fa fa-camera-retro"></i><span> 相册</span></a></li><li><a class="site-page child" href="/music/"><i class="fa-fw fa fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 影视</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Redis知识点</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-06-09T12:09:56.000Z" title="发表于 2024-06-09 20:09:56">2024-06-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-06-10T12:39:41.852Z" title="更新于 2024-06-10 20:39:41">2024-06-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Redis/">Redis</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Redis知识点"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="Redis数据结构和类型">Redis数据结构和类型</h2>
+  </div>
+  </div><article class="md-text content"><h2 id="Redis数据结构和类型">Redis数据结构和类型</h2>
 <p>Redis有5种<strong>数据类型</strong>：字符串、链表、哈希、集合、有序集合</p>
 <p>与8种<strong>数据结构</strong>分别对应：</p>
 <table>
@@ -240,7 +200,7 @@
 <p>元素无序且唯一，Set提供了多个判断元素是否存在于集合中的接口，List不具备该接口</p>
 <p>可以利用Set进行交集、并集、差集操作，可以实现共同关注、共同粉丝等功能。</p>
 <p><strong>常用指令：</strong></p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525165011087-1716727704727-5.png" alt="image-20240525165011087" style="zoom: 67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525165011087-1716727704727-5.png" alt="image-20240525165011087" style="zoom: 67%;">
 <p><strong>应用场景：</strong></p>
 <ul class="lvl-0">
 <li class="lvl-2">
@@ -289,9 +249,9 @@
 <h3 id="Bitmap">Bitmap</h3>
 <p>Bitmap不是Redis的基本数据类型，而是在String类型上定义的一组面向位的操作，将其视为位向量。由于字符串是二进制安全的块，且最大长度为 512 MB，它们适合用于设置最多 2^32 个不同的位。</p>
 <p>可以将Bitmap看作一个二进制数字（0，1）的数组，数组中每个元素的<strong>下标叫做offset</strong>（偏移量）。</p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525165730721-1716727704727-6.png" alt="image-20240525165730721" style="zoom:67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525165730721-1716727704727-6.png" alt="image-20240525165730721" style="zoom:67%;">
 <p><strong>常用指令：</strong></p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525165753049-1716727704727-7.png" alt="image-20240525165753049" style="zoom:50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525165753049-1716727704727-7.png" alt="image-20240525165753049" style="zoom:50%;">
 <p><strong>应用场景</strong>：</p>
 <ul class="lvl-0">
 <li class="lvl-2">
@@ -299,7 +259,7 @@
 </li>
 </ul>
 <p>如果想要使用 Bitmap 统计活跃用户的话，可以使用日期（精确到天）作为 key，然后用户 ID 为 offset，如果当日活跃过就设置为 1。</p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525213942483-1716727704727-8.png" alt="image-20240525213942483" style="zoom:50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525213942483-1716727704727-8.png" alt="image-20240525213942483" style="zoom:50%;">
 <h3 id="HyperLogLog-基数统计">HyperLogLog(基数统计)</h3>
 <p>使用 HyperLogLog 统计页面 UV 主要需要用到下面这两个命令：</p>
 <p><code>PFADD key element1 element2 ...</code>：添加一个或多个元素到 HyperLogLog 中。</p>
@@ -307,7 +267,7 @@
 <h3 id="Geospatial-地理位置">Geospatial(地理位置)</h3>
 <p><strong>基于Sorted Set</strong>实现，主要用于存储地理位置</p>
 <p><strong>常用命令：</strong></p>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525165837030-1716727704727-9.png" alt="image-20240525165837030"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525165837030-1716727704727-9.png" alt="image-20240525165837030"></p>
 <h2 id="Redis线程模型">Redis线程模型</h2>
 <h3 id="Redis单线程模型">Redis单线程模型</h3>
 <p>对于读写命令，redis 一直是单线程模型，不过在 4.0 版本以后引入了多线程来执行一些大键值对的异步操作，在 6.0 后引入了多线程来处理网络请求，提高网络 IO 读写性能。</p>
@@ -339,7 +299,7 @@
 <li class="lvl-4">文件事件分派器（将 socket 关联到相应的事件处理器）</li>
 <li class="lvl-4">事件处理器（连接应答处理器、命令请求处理器、命令回复处理器）</li>
 </ul>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525221336985-1716727704727-10.png" alt="image-20240525221336985"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525221336985-1716727704727-10.png" alt="image-20240525221336985"></p>
 </li>
 <li class="lvl-2">
 <p><strong>4.0 版本的多线程：</strong><br>
@@ -420,7 +380,7 @@ QPS（Query Per Second）：服务器每秒可以执行的查询次数；</p>
 <p>服务器同时维护cache和db，并且是以db的结果为准</p>
 <p>比较适合请求比较多的场景。</p>
 <p>​		<strong>缓存读写步骤：</strong>​		写：先更新DB，再删除缓存​		读：从cache中读取缓存，读取到就直接返回；未读取到就查DB，从DB中直接返回，然后重建缓存</p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525184121578-1716727704727-11.png" alt="image-20240525184121578" style="zoom: 67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525184121578-1716727704727-11.png" alt="image-20240525184121578" style="zoom: 67%;">
 <p>​		先更新数据库，再删除缓存，也是有可能出现双写不一致性问题的，比如：当前缓存不存在目标数据，线程A查询缓存，未命中缓存，然后线程A查数据库，查到数据后，在重构缓存之前，切换到线程B，线程B修改数据库目标数据，然后删除缓存，此时切换到线程A，线程A重构缓存，这样就出现了缓存和数据库不一致的问题。</p>
 <p><strong>旁路缓存模式的缺陷：</strong></p>
 <ol>
@@ -443,36 +403,36 @@ QPS（Query Per Second）：服务器每秒可以执行的查询次数；</p>
 <p>​	很明显，这种方式对数据一致性带来了更大的挑战，比如 cache 数据可能还没异步更新 db 的话，cache 服务可能就就挂掉了。</p>
 <p>​	这种策略在我们平时开发过程中也非常非常少见，但是不代表它的应用场景少，比如消息队列中消息的异步写入磁盘、MySQL 的 Innodb Buffer Pool 机制都用到了这种策略。</p>
 <p>​	Write Behind Pattern 下 db 的写性能非常高，非常适合一些数据经常变化又对数据一致性要求没那么高的场景，比如浏览量、点赞量</p>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525195602137-1716727704727-12.png" alt="image-20240525195602137"></p>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525195611485-1716727704727-13.png" alt="image-20240525195611485"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525195602137-1716727704727-12.png" alt="image-20240525195602137"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525195611485-1716727704727-13.png" alt="image-20240525195611485"></p>
 <h2 id="缓存三兄弟">缓存三兄弟</h2>
 <h3 id="缓存穿透">缓存穿透</h3>
 <p>缓存穿透是指查询一个缓存和数据库都不存在的数据，这将导致这个不存在的数据每次请求都要到 DB 去查询，可能导致 DB 挂掉。这种情况大概率是遭到了攻击。</p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240328151854168.png" alt="image-20240328151854168" style="zoom:67%;" align="left">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240328151854168.png" alt="image-20240328151854168" style="zoom:67%;" align="left">
 <h4 id="缓存空值">缓存空值</h4>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309155058324.png" alt="image-20240309155058324"></p>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309155838160.png" alt="image-20240309155838160"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309155058324.png" alt="image-20240309155058324"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309155838160.png" alt="image-20240309155838160"></p>
 <p><strong>缓存预热</strong>是一种在应用程序启动或缓存失效之后，主动将热点数据加载到缓存中的策略。这样，在实际请求到达应用程序时，热点数据已经存在于缓存中，从而减少了缓存未命中的情况，提高了应用程序的响应速度。</p>
 <h4 id="布隆过滤器">布隆过滤器</h4>
 <p>布隆过滤器主要是用于检索一个元素是否在一个集合中。我们当时使用的是redisson实现的布隆过滤器。</p>
 <p>它的底层主要是先去初始化一个比较大数组，里面存放的二进制0或1。在一开始都是0，当一个key来了之后经过3次hash计算，模于数组长度找到数据的下标然后把数组中原来的0改为1，这样的话，三个数组的位置就能标明一个key的存在。查找的过程也是一样的。</p>
 <p>当然是有缺点的，布隆过滤器有可能会产生一定的误判，我们一般可以设置这个误判率，大概不会超过5%，其实这个误判是必然存在的，要不就得增加数组的长度，其实已经算是很划算了，5%以内的误判率一般的项目也能接受，不至于高并发下压倒数据库。</p>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525195641720-1716727704727-14.png" alt="image-20240525195641720"></p>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525195649976-1716727704727-15.png" alt="image-20240525195649976"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525195641720-1716727704727-14.png" alt="image-20240525195641720"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525195649976-1716727704727-15.png" alt="image-20240525195649976"></p>
 <h4 id="接口限流">接口限流</h4>
 <p>根据用户或者 IP 对接口进行限流，对于异常频繁的访问行为，还可以采取黑名单机制，例如将异常 IP 列入黑名单。</p>
 <p>后面提到的缓存击穿和雪崩都可以配合接口限流来解决，毕竟这些问题的关键都是有很多请求落到了数据库上造成数据库压力过大。</p>
 <h3 id="缓存击穿">缓存击穿</h3>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525203241837-1716727704727-16.png" alt="image-20240525203241837"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240525203241837-1716727704727-16.png" alt="image-20240525203241837"></p>
 <h4 id="互斥锁、逻辑过期">互斥锁、逻辑过期</h4>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309163036528.png" alt="image-20240309163036528"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309163036528.png" alt="image-20240309163036528"></p>
 <p><strong>互斥锁：</strong><br>
 因为锁能实现互斥性。假设线程过来，只能一个人一个人的来访问数据库，从而避免对于数据库访问压力过大，但这也会影响查询的性能，因为此时会让查询的性能从并行变成了串行，我们可以采用tryLock方法 + double check来解决这样的问题。假设现在线程1过来访问，他查询缓存没有命中，但是此时他获得到了锁的资源，那么线程1就会一个人去执行逻辑，假设现在线程2过来，线程2在执行过程中，并没有获得到锁，那么线程2就可以进行到休眠，直到线程1把锁释放后，线程2获得到锁，然后再来执行逻辑，此时就能够从缓存中拿到数据了</p>
 <p><strong>逻辑过期</strong>：不在Redis数据中设置有效期属性，而是在value中添加逻辑有效期字段我们之所以会出现这个缓存击穿问题，主要原因是在于我们对key设置了过期时间，假设我们不设置过期时间，其实就不会有缓存击穿的问题，但是不设置过期时间，这样数据不就一直占用我们内存了吗，我们可以采用逻辑过期方案。具体为：当线程1读取缓存，发现缓存过期后，会申请得到互斥锁，然后开启一个线程来查询数据重构缓存，然后返回过期数据；在后台线程释放锁之前，其他线程读取到过期缓存后，没有拿到互斥锁并不会被阻塞，而是直接返回过期的脏数据。	<br>
 <strong>优点是异步地构建缓存，缺点是缓存重构完成之前，其他线程返回的都是脏数据。</strong></p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240328153910223.png" alt="image-20240328153910223" style="zoom: 67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240328153910223.png" alt="image-20240328153910223" style="zoom: 67%;">
 <h3 id="缓存雪崩">缓存雪崩</h3>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309163354767.png" alt="image-20240309163354767"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309163354767.png" alt="image-20240309163354767"></p>
 <p>或者设置定时任务，更新过期时间</p>
 <h4 id="针对Redis服务宕机的情况">针对Redis服务宕机的情况</h4>
 <ul class="lvl-0">
@@ -506,26 +466,26 @@ QPS（Query Per Second）：服务器每秒可以执行的查询次数；</p>
 </li>
 </ol>
 <h2 id="双写一致性">双写一致性</h2>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240328174634915.png" alt="image-20240328174634915" style="zoom:67%;">
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240328174655246.png" alt="image-20240328174655246"></p>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309165448439.png" alt="image-20240309165448439"></p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240328174634915.png" alt="image-20240328174634915" style="zoom:67%;">
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240328174655246.png" alt="image-20240328174655246"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309165448439.png" alt="image-20240309165448439"></p>
 <p>一般数据库采用的是主从模式，主从数据库同步需要时间</p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240317204441365.png" alt="image-20240317204441365" style="zoom: 67%;">
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240317205137985.png" alt="image-20240317205137985" style="zoom:67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240317204441365.png" alt="image-20240317204441365" style="zoom: 67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240317205137985.png" alt="image-20240317205137985" style="zoom:67%;">
 <h3 id="要求强一致性：用读写锁">要求强一致性：用读写锁</h3>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309170037181.png" alt="image-20240309170037181"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309170037181.png" alt="image-20240309170037181"></p>
 <p>但效率低，为了提高效率，改用读写锁，读的时候上共享锁，此时其他线程对该数据只能读不能写，写的时候上排他锁，此时其他线程不能读也不能写</p>
 <p>以下为redisson实现的读写锁</p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240317210145873.png" alt="image-20240317210145873" style="zoom:50%;">
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240317210327844.png" alt="image-20240317210327844" style="zoom: 67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240317210145873.png" alt="image-20240317210145873" style="zoom:50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240317210327844.png" alt="image-20240317210327844" style="zoom: 67%;">
 <h3 id="允许延迟一致：保证数据的最终一致，用异步通知">允许延迟一致：保证数据的最终一致，用异步通知</h3>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309170151593.png" alt="image-20240309170151593"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309170151593.png" alt="image-20240309170151593"></p>
 <h2 id="数据持久化">数据持久化</h2>
 <h3 id="RDB">RDB</h3>
 <p>snapshotting 快照 RDB</p>
 <p>Redis 可以通过创建快照来获得存储在内存里面的数据在 <strong>某个时间点</strong> 上的副本。Redis 创建快照之后，可以对快照进行备份，可以将快照复制到其他服务器从而创建具有相同数据的服务器副本（Redis 主从结构，主要用来提高 Redis 性能），还可以将快照留在原地以便重启服务器的时候使用。</p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171013569.png" alt="image-20240309171013569" style="zoom:50%;">
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171351195.png" alt="image-20240309171351195"></p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171013569.png" alt="image-20240309171013569" style="zoom:50%;">
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171351195.png" alt="image-20240309171351195"></p>
 <p><strong>Redis 提供了两个命令来生成 RDB 快照文件：</strong></p>
 <ul class="lvl-0">
 <li class="lvl-2">
@@ -538,8 +498,8 @@ QPS（Query Per Second）：服务器每秒可以执行的查询次数；</p>
 <h3 id="AOF">AOF</h3>
 <p>与快照持久化相比，AOF 持久化的<strong>实时性更好</strong>。默认情况下 Redis 没有开启 AOF（append only file）方式的持久化（Redis 6.0 之后已经默认是开启了），可以通过 <code>appendonly</code> 参数开启：</p>
 <p>开启 AOF 持久化后每执行一条会更改 Redis 中的数据的命令，Redis 就会将该命令写入到 AOF 缓冲区 <code>server.aof_buf</code> 中，然后再写入到 AOF 文件中（此时还在系统内核缓存区未同步到磁盘），最后再根据持久化方式（ <code>fsync</code>策略）的配置来决定何时将系统内核缓存区的数据同步到硬盘中的。</p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171530051.png" alt="image-20240309171530051" style="zoom:50%;">
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171916468.png" alt="image-20240309171916468"></p>
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171530051.png" alt="image-20240309171530051" style="zoom:50%;">
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171916468.png" alt="image-20240309171916468"></p>
 <h4 id="AOF的工作流程">AOF的工作流程</h4>
 <ul class="lvl-0">
 <li class="lvl-2">
@@ -556,7 +516,7 @@ QPS（Query Per Second）：服务器每秒可以执行的查询次数；</p>
 </li>
 <li class="lvl-2">
 <p>重新加载（road)：redis重启时，加载AOF文件进行数据恢复</p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240411222915047.png" alt="image-20240411222915047" style="zoom: 67%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240411222915047.png" alt="image-20240411222915047" style="zoom: 67%;">
 </li>
 </ul>
 <h4 id="刷盘策略（AOF持久化策略）">刷盘策略（AOF持久化策略）</h4>
@@ -585,8 +545,8 @@ QPS（Query Per Second）：服务器每秒可以执行的查询次数；</p>
 </li>
 </ul>
 <h3 id="对比">对比</h3>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171955634.png" alt="image-20240309171955634" style="zoom:50%;">
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309172248463.png" alt="image-20240309172248463" style="zoom: 50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309171955634.png" alt="image-20240309171955634" style="zoom:50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309172248463.png" alt="image-20240309172248463" style="zoom: 50%;">
 <p><strong>RDB比AOF优秀的地方：</strong></p>
 <ul class="lvl-0">
 <li class="lvl-2">
@@ -647,19 +607,19 @@ QPS（Query Per Second）：服务器每秒可以执行的查询次数；</p>
 <p><strong>控制删除操作的频率</strong>：如果这一批过期的 key 比例超过一个比例，就会重复执行此删除流程，以更积极地清理过期 key。相应地，如果过期的 key 比例低于这个比例，就会中断这一次定期删除循环，避免做过多的工作而获得很少的内存回收。</p>
 </li>
 </ul>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309172533656.png" alt="image-20240309172533656"></p>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309173007463.png" alt="image-20240309173007463"></p>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309173423123.png" alt="image-20240309173423123"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309172533656.png" alt="image-20240309172533656"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309173007463.png" alt="image-20240309173007463"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309173423123.png" alt="image-20240309173423123"></p>
 <h2 id="数据淘汰策略">数据淘汰策略</h2>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309173640388.png" alt="image-20240309173640388"></p>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309174123755.png" alt="image-20240309174123755"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309173640388.png" alt="image-20240309173640388"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309174123755.png" alt="image-20240309174123755"></p>
 <p><mark><strong>范围：allkeys/volatile</strong></mark></p>
 <p><mark><strong>策略：lru/lfu/random</strong></mark></p>
 <p><mark><strong>外加：volatile-ttl、no-eviction</strong></mark></p>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309174300755.png" alt="image-20240309174300755"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309174300755.png" alt="image-20240309174300755"></p>
 <p><strong>平时用的比较多的是 allkeys-lru</strong></p>
 <h2 id="分布式锁">分布式锁</h2>
-<p><img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309174732844.png" alt="image-20240309174732844"></p>
+<p><img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240309174732844.png" alt="image-20240309174732844"></p>
 <ul class="lvl-0">
 <li class="lvl-2">
 <p><strong>分布式锁应具备的条件：</strong><br>
@@ -695,7 +655,7 @@ QPS（Query Per Second）：服务器每秒可以执行的查询次数；</p>
 </ul>
 </li>
 </ul>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240411191731597.png" alt="image-20240411191731597" style="zoom:67%;" align="left">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240411191731597.png" alt="image-20240411191731597" style="zoom:67%;" align="left">
 <p>注：lock节点是持久节点</p>
 <ul class="lvl-0">
 <li class="lvl-2">
@@ -779,7 +739,7 @@ QPS（Query Per Second）：服务器每秒可以执行的查询次数；</p>
 </ol>
 <h3 id="Bigkey影响性能">Bigkey影响性能</h3>
 <p>redis中，如果一个key的value过大，则被视为bigkey。</p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240412203613497.png" alt="image-20240412203613497" style="zoom:80%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240412203613497.png" alt="image-20240412203613497" style="zoom:80%;">
 <p>String 类型的value超过<strong>1MB</strong>，复合类型（List, Hash, Set, ZSet）的 value 元素超过<strong>5000个</strong></p>
 <p><strong>bigkey会对redis性能造成影响：</strong><br>
 bigkey 会占用更多的内存和网络带宽，会造成阻塞问题：</p>
@@ -1032,7 +992,7 @@ Redis 中有两个关键的配置项可以解决这个问题，分别是 <strong
 <p>Redis Cluster 主要是为了提高<strong>写并发。</strong></p>
 <p>为了保证高可用，Redis Cluster 至少需要 3 个 master 以及 3 个 slave，也就是说每个 master 必须有 1 个 slave。master 和 slave 之间做主从复制，slave 会实时同步 master 上的数据。</p>
 <p>不同于普通的 Redis 主从架构，这里的 slave 不对外提供读服务，主要用来保障 master 的高可用，当 master 出现故障的时候替代它。</p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240528164002270.png" alt="image-20240528164002270" style="zoom:50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240528164002270.png" alt="image-20240528164002270" style="zoom:50%;">
 <p>Redis Cluster 是<strong>去中心化</strong>的（各个节点基于 Gossip 进行通信），任何一个 master 出现故障，其它的 master 节点不受影响，因为 key 找的是哈希槽而不是 Redis 节点。不过，Redis Cluster 至少要保证宕机的 master 有一个 slave 可用。</p>
 <p><strong>如果宕机的 master 无 slave 的话</strong>，为了保障集群的完整性，保证所有的哈希槽都指派给了可用的 master ，<strong>整个集群将不可用</strong>。这种情况下，还是想让集群保持可用的话，可以将<code>cluster-require-full-coverage </code>这个参数设置成 no，cluster-require-full-coverage 表示需要 <strong>16384</strong> 个 slot 都正常被分配的时候 Redis Cluster 才可以对外提供服务。</p>
 <p>有了 Redis Cluster 之后，不需要专门部署 Sentinel 集群服务了。Redis Cluster 相当于是内置了 Sentinel 机制，Redis Cluster 内部的各个 Redis 节点通过 Gossip 协议互相探测健康状态，在故障时可以自动切换。</p>
@@ -1041,7 +1001,7 @@ Redis 中有两个关键的配置项可以解决这个问题，分别是 <strong
 <p>Redis Cluster 通常有 <strong>16384</strong> 个哈希槽 ，要计算给定 key 应该分布到哪个哈希槽中，我们只需要先对每个 key 计算 CRC-16（XMODEM） 校验码，然后再对这个校验码对 16384(哈希槽的总数) 取模，得到的值即是 key 对应的哈希槽。</p>
 <p>创建并初始化 Redis Cluster 的时候，Redis 会<strong>自动平均分配</strong>这 16384 个哈希槽到各个节点，不需要我们手动分配。如果你想自己手动调整的话，Redis Cluster 也内置了相关的命令比如<code> ADDSLOTS、ADDSLOTSRANGE</code></p>
 <p>客户端连接 Redis Cluster 中任意一个 master 节点即可访问 Redis Cluster 的数据，当客户端发送命令请求的时候，需要先根据 key 通过上面的计算公示找到的对应的哈希槽，然后再查询哈希槽和节点的映射关系，即可找到目标节点。</p>
-<img src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240528165246469.png" alt="image-20240528165246469" style="zoom:50%;">
+<img class="lazy" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" data-src="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/image-20240528165246469.png" alt="image-20240528165246469" style="zoom:50%;">
 <p>如果哈希槽确实是当前节点负责，那就直接响应客户端的请求返回结果，如果不由当前节点负责，就会返回 -MOVED 重定向错误，告知客户端当前哈希槽是由哪个节点负责，客户端向目标节点发送请求并更新缓存的哈希槽分配信息。</p>
 <p>Redis Cluster 哈希槽分区机制的优点：<strong>解耦了数据和节点之间的关系，提升了集群的横向扩展性和容错性。</strong></p>
 <h3 id="Redis-Cluster-扩容缩容期间可以提供服务吗？"><strong>Redis Cluster 扩容缩容期间可以提供服务吗？</strong></h3>
@@ -1106,8 +1066,403 @@ Redis 中有两个关键的配置项可以解决这个问题，分别是 <strong
 </ul>
 </li>
 </ul>
-</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://walterke1001.github.io/">Walter</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/">http://walterke1001.github.io/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://walterke1001.github.io" target="_blank">浅唱</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Redis/">Redis</a><a class="post-meta__tags" href="/tags/KV%E6%95%B0%E6%8D%AE%E5%BA%93/">KV数据库</a></div><div class="post_share"><div class="social-share" data-image="/images/img_1.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/06/10/%E5%8A%A0%E5%AF%86%E6%B5%8B%E8%AF%95/" title="加密测试"><img class="cover" src="/img/default_cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">加密测试</div></div></a></div><div class="next-post pull-right"><a href="/2024/06/09/halo%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/" title="halo安装部署"><img class="cover" src="/img/default_cover.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">halo安装部署</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Walter</div><div class="author-info__description">Day day up!</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">5</div></a></div><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/walterke1001" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">记录我的技术成长历程</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.</span> <span class="toc-text">Redis数据结构和类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#String"><span class="toc-number">1.1.</span> <span class="toc-text">String</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#List"><span class="toc-number">1.2.</span> <span class="toc-text">List</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hash"><span class="toc-number">1.3.</span> <span class="toc-text">Hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Set"><span class="toc-number">1.4.</span> <span class="toc-text">Set</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ZSet"><span class="toc-number">1.5.</span> <span class="toc-text">ZSet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bitmap"><span class="toc-number">1.6.</span> <span class="toc-text">Bitmap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HyperLogLog-%E5%9F%BA%E6%95%B0%E7%BB%9F%E8%AE%A1"><span class="toc-number">1.7.</span> <span class="toc-text">HyperLogLog(基数统计)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Geospatial-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE"><span class="toc-number">1.8.</span> <span class="toc-text">Geospatial(地理位置)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">Redis线程模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis%E5%8D%95%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.1.</span> <span class="toc-text">Redis单线程模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis%E5%90%8E%E5%8F%B0%E7%BA%BF%E7%A8%8B"><span class="toc-number">2.2.</span> <span class="toc-text">Redis后台线程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="toc-number">3.</span> <span class="toc-text">Redis为什么这么快？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8Redis"><span class="toc-number">4.</span> <span class="toc-text">为什么用Redis?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E7%BC%93%E5%AD%98%E8%AF%BB%E5%86%99%E7%AD%96%E7%95%A5"><span class="toc-number">5.</span> <span class="toc-text">Redis缓存读写策略</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%81%E8%B7%AF%E7%BC%93%E5%AD%98%E6%A8%A1%E5%BC%8F%EF%BC%88Cache-Aside-Pattern"><span class="toc-number">5.1.</span> <span class="toc-text">旁路缓存模式（Cache Aside Pattern)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%86%99%E7%A9%BF%E9%80%8F%E6%A8%A1%E5%BC%8F%EF%BC%88Read-Write-Through-Pattern"><span class="toc-number">5.2.</span> <span class="toc-text">读写穿透模式（Read&#x2F;Write Through Pattern)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%82%E6%AD%A5%E7%BC%93%E5%AD%98%E5%86%99%E5%85%A5%E6%A8%A1%E5%BC%8F%EF%BC%88Write-Behind-Pattern"><span class="toc-number">5.3.</span> <span class="toc-text">异步缓存写入模式（Write Behind Pattern)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E4%B8%89%E5%85%84%E5%BC%9F"><span class="toc-number">6.</span> <span class="toc-text">缓存三兄弟</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F"><span class="toc-number">6.1.</span> <span class="toc-text">缓存穿透</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E7%A9%BA%E5%80%BC"><span class="toc-number">6.1.1.</span> <span class="toc-text">缓存空值</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="toc-number">6.1.2.</span> <span class="toc-text">布隆过滤器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8E%A5%E5%8F%A3%E9%99%90%E6%B5%81"><span class="toc-number">6.1.3.</span> <span class="toc-text">接口限流</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF"><span class="toc-number">6.2.</span> <span class="toc-text">缓存击穿</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%92%E6%96%A5%E9%94%81%E3%80%81%E9%80%BB%E8%BE%91%E8%BF%87%E6%9C%9F"><span class="toc-number">6.2.1.</span> <span class="toc-text">互斥锁、逻辑过期</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9"><span class="toc-number">6.3.</span> <span class="toc-text">缓存雪崩</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%92%88%E5%AF%B9Redis%E6%9C%8D%E5%8A%A1%E5%AE%95%E6%9C%BA%E7%9A%84%E6%83%85%E5%86%B5"><span class="toc-number">6.3.1.</span> <span class="toc-text">针对Redis服务宕机的情况</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%92%88%E5%AF%B9%E5%A4%A7%E9%87%8F%E7%BC%93%E5%AD%98%E5%90%8C%E6%97%B6%E5%A4%B1%E6%95%88%E7%9A%84%E6%83%85%E5%86%B5"><span class="toc-number">6.3.2.</span> <span class="toc-text">针对大量缓存同时失效的情况</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E9%A2%84%E7%83%AD"><span class="toc-number">7.</span> <span class="toc-text">缓存预热</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7"><span class="toc-number">8.</span> <span class="toc-text">双写一致性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A6%81%E6%B1%82%E5%BC%BA%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%9A%E7%94%A8%E8%AF%BB%E5%86%99%E9%94%81"><span class="toc-number">8.1.</span> <span class="toc-text">要求强一致性：用读写锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%81%E8%AE%B8%E5%BB%B6%E8%BF%9F%E4%B8%80%E8%87%B4%EF%BC%9A%E4%BF%9D%E8%AF%81%E6%95%B0%E6%8D%AE%E7%9A%84%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%EF%BC%8C%E7%94%A8%E5%BC%82%E6%AD%A5%E9%80%9A%E7%9F%A5"><span class="toc-number">8.2.</span> <span class="toc-text">允许延迟一致：保证数据的最终一致，用异步通知</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%8C%81%E4%B9%85%E5%8C%96"><span class="toc-number">9.</span> <span class="toc-text">数据持久化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RDB"><span class="toc-number">9.1.</span> <span class="toc-text">RDB</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AOF"><span class="toc-number">9.2.</span> <span class="toc-text">AOF</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#AOF%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-number">9.2.1.</span> <span class="toc-text">AOF的工作流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%B7%E7%9B%98%E7%AD%96%E7%95%A5%EF%BC%88AOF%E6%8C%81%E4%B9%85%E5%8C%96%E7%AD%96%E7%95%A5%EF%BC%89"><span class="toc-number">9.2.2.</span> <span class="toc-text">刷盘策略（AOF持久化策略）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E6%AF%94"><span class="toc-number">9.3.</span> <span class="toc-text">对比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%A1%E9%AA%8C%E6%9C%BA%E5%88%B6"><span class="toc-number">9.4.</span> <span class="toc-text">校验机制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E8%BF%87%E6%9C%9F%E5%88%A0%E9%99%A4%E7%AD%96%E7%95%A5"><span class="toc-number">10.</span> <span class="toc-text">数据过期删除策略</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5"><span class="toc-number">11.</span> <span class="toc-text">数据淘汰策略</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="toc-number">12.</span> <span class="toc-text">分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88"><span class="toc-number">12.1.</span> <span class="toc-text">分布式锁的实现方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Redis"><span class="toc-number">12.1.1.</span> <span class="toc-text">Redis</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ZooKeeper"><span class="toc-number">12.1.2.</span> <span class="toc-text">ZooKeeper</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%8F%AF%E9%87%8D%E5%85%A5%EF%BC%9F"><span class="toc-number">12.2.</span> <span class="toc-text">如何实现可重入？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E9%9B%86%E7%BE%A4%E4%B8%8B%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7%EF%BC%9F"><span class="toc-number">12.3.</span> <span class="toc-text">如何解决集群下分布式锁的可靠性？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%B9%82%E7%AD%89%E6%80%A7-%E2%AD%90TODO"><span class="toc-number">12.4.</span> <span class="toc-text">接口的幂等性 ⭐TODO</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="toc-number">13.</span> <span class="toc-text">Redis性能优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%89%B9%E9%87%8F%E6%93%8D%E4%BD%9C%E5%87%8F%E5%B0%91%E7%BD%91%E7%BB%9C%E4%BC%A0%E8%BE%93"><span class="toc-number">13.1.</span> <span class="toc-text">使用批量操作减少网络传输</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%A7%E9%87%8Fkey%E9%9B%86%E4%B8%AD%E8%BF%87%E6%9C%9F%E5%BD%B1%E5%93%8D%E6%80%A7%E8%83%BD"><span class="toc-number">13.2.</span> <span class="toc-text">大量key集中过期影响性能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bigkey%E5%BD%B1%E5%93%8D%E6%80%A7%E8%83%BD"><span class="toc-number">13.3.</span> <span class="toc-text">Bigkey影响性能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hotkey%E5%BD%B1%E5%93%8D%E6%80%A7%E8%83%BD"><span class="toc-number">13.4.</span> <span class="toc-text">Hotkey影响性能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%85%A2%E6%9F%A5%E8%AF%A2%E5%91%BD%E4%BB%A4"><span class="toc-number">13.5.</span> <span class="toc-text">慢查询命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis%E5%B8%B8%E8%A7%81%E9%98%BB%E5%A1%9E%E5%8E%9F%E5%9B%A0"><span class="toc-number">13.6.</span> <span class="toc-text">Redis常见阻塞原因</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis%E5%86%85%E5%AD%98%E7%A2%8E%E7%89%87"><span class="toc-number">13.7.</span> <span class="toc-text">Redis内存碎片</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis-Sentinel"><span class="toc-number">14.</span> <span class="toc-text">Redis Sentinel</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-Sentinel"><span class="toc-number">14.1.</span> <span class="toc-text">什么是 Sentinel</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel-%E6%9C%89%E4%BB%80%E4%B9%88%E7%94%A8"><span class="toc-number">14.2.</span> <span class="toc-text">Sentinel 有什么用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel-%E5%A6%82%E4%BD%95%E6%A3%80%E6%B5%8B%E8%8A%82%E7%82%B9%E4%B8%8B%E7%BA%BF"><span class="toc-number">14.3.</span> <span class="toc-text">Sentinel 如何检测节点下线</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E9%80%89%E5%87%BA%E6%96%B0Master"><span class="toc-number">14.4.</span> <span class="toc-text">如何选出新Master</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel-%E6%98%AF%E5%90%A6%E5%8F%AF%E4%BB%A5%E9%98%B2%E6%AD%A2%E8%84%91%E8%A3%82"><span class="toc-number">14.5.</span> <span class="toc-text">Sentinel 是否可以防止脑裂</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis-Cluster"><span class="toc-number">15.</span> <span class="toc-text">Redis Cluster</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis-Cluster-%E5%A6%82%E4%BD%95%E5%88%86%E7%89%87"><span class="toc-number">15.1.</span> <span class="toc-text">Redis Cluster 如何分片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis-Cluster-%E6%89%A9%E5%AE%B9%E7%BC%A9%E5%AE%B9%E6%9C%9F%E9%97%B4%E5%8F%AF%E4%BB%A5%E6%8F%90%E4%BE%9B%E6%9C%8D%E5%8A%A1%E5%90%97%EF%BC%9F"><span class="toc-number">15.2.</span> <span class="toc-text">Redis Cluster 扩容缩容期间可以提供服务吗？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E4%BB%BB%E5%8A%A1"><span class="toc-number">16.</span> <span class="toc-text">Redis实现延时任务</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/06/10/%E5%8A%A0%E5%AF%86%E6%B5%8B%E8%AF%95/" title="加密测试">加密测试</a><time datetime="2024-06-10T13:07:03.000Z" title="发表于 2024-06-10 21:07:03">2024-06-10</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/06/09/Redis%E7%9F%A5%E8%AF%86%E7%82%B9/" title="Redis知识点">Redis知识点</a><time datetime="2024-06-09T12:09:56.000Z" title="发表于 2024-06-09 20:09:56">2024-06-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/06/09/halo%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/" title="halo安装部署">halo安装部署</a><time datetime="2024-06-09T07:38:28.000Z" title="发表于 2024-06-09 15:38:28">2024-06-09</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2024/06/08/JUC%E7%9F%A5%E8%AF%86%E7%82%B9/" title="JUC知识点">JUC知识点</a><time datetime="2024-06-08T10:48:39.000Z" title="发表于 2024-06-08 18:48:39">2024-06-08</time></div></div></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2022 - 2024 By Walter</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">♥</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
-POWERMODE.shake = false;
-POWERMODE.mobile = false;
-document.body.addEventListener('input', POWERMODE);
-</script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="false" data-text=",LOVE,YOU" data-fontsize="15px" data-random="false" async="async"></script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1.10.1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/metingjs/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.13.0"></script></div></div></body></html>
+
+<div class="article-footer fs14">
+    <section id="license">
+      <div class="header"><span>许可协议</span></div>
+      <div class="body"><p>本文采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">署名-非商业性使用-相同方式共享 4.0 国际</a> 许可协议，转载请注明出处。</p>
+</div>
+    </section>
+    </div>
+</article>
+<div class="related-wrap" id="read-next"><section class="body"><div class="item" id="prev"></div><div class="item" id="next"><div class="note">较早文章</div><a href="/2024/06/09/halo%E5%AE%89%E8%A3%85%E9%83%A8%E7%BD%B2/">halo安装部署</a></div></section></div>
+
+
+
+
+
+
+<footer class="page-footer footnote"><hr><div class="text"><p>本站由 <a href="/">Walter</a> 使用 <a target="_blank" rel="noopener" href="https://github.com/xaoxuu/hexo-theme-stellar/tree/1.28.1">Stellar 1.28.1</a> 主题创建。本博客所有文章除特别声明外，均采用 <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议，转载请注明出处。</p>
+</div></footer>
+<div class="main-mask" onclick="sidebar.dismiss()"></div></div><aside class="l_right">
+<div class="widgets">
+
+
+
+<widget class="widget-wrapper toc" id="data-toc" collapse="false"><div class="widget-header dis-select"><span class="name">本文目录</span><a class="cap-action" onclick="sidebar.toggleTOC()" ><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg></a></div><div class="widget-body"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%92%8C%E7%B1%BB%E5%9E%8B"><span class="toc-text">Redis数据结构和类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#String"><span class="toc-text">String</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#List"><span class="toc-text">List</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hash"><span class="toc-text">Hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Set"><span class="toc-text">Set</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ZSet"><span class="toc-text">ZSet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bitmap"><span class="toc-text">Bitmap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HyperLogLog-%E5%9F%BA%E6%95%B0%E7%BB%9F%E8%AE%A1"><span class="toc-text">HyperLogLog(基数统计)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Geospatial-%E5%9C%B0%E7%90%86%E4%BD%8D%E7%BD%AE"><span class="toc-text">Geospatial(地理位置)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B"><span class="toc-text">Redis线程模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis%E5%8D%95%E7%BA%BF%E7%A8%8B%E6%A8%A1%E5%9E%8B"><span class="toc-text">Redis单线程模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis%E5%90%8E%E5%8F%B0%E7%BA%BF%E7%A8%8B"><span class="toc-text">Redis后台线程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="toc-text">Redis为什么这么快？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8Redis"><span class="toc-text">为什么用Redis?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E7%BC%93%E5%AD%98%E8%AF%BB%E5%86%99%E7%AD%96%E7%95%A5"><span class="toc-text">Redis缓存读写策略</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%81%E8%B7%AF%E7%BC%93%E5%AD%98%E6%A8%A1%E5%BC%8F%EF%BC%88Cache-Aside-Pattern"><span class="toc-text">旁路缓存模式（Cache Aside Pattern)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%86%99%E7%A9%BF%E9%80%8F%E6%A8%A1%E5%BC%8F%EF%BC%88Read-Write-Through-Pattern"><span class="toc-text">读写穿透模式（Read&#x2F;Write Through Pattern)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%82%E6%AD%A5%E7%BC%93%E5%AD%98%E5%86%99%E5%85%A5%E6%A8%A1%E5%BC%8F%EF%BC%88Write-Behind-Pattern"><span class="toc-text">异步缓存写入模式（Write Behind Pattern)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E4%B8%89%E5%85%84%E5%BC%9F"><span class="toc-text">缓存三兄弟</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F"><span class="toc-text">缓存穿透</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E7%A9%BA%E5%80%BC"><span class="toc-text">缓存空值</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="toc-text">布隆过滤器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8E%A5%E5%8F%A3%E9%99%90%E6%B5%81"><span class="toc-text">接口限流</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF"><span class="toc-text">缓存击穿</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%92%E6%96%A5%E9%94%81%E3%80%81%E9%80%BB%E8%BE%91%E8%BF%87%E6%9C%9F"><span class="toc-text">互斥锁、逻辑过期</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9"><span class="toc-text">缓存雪崩</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%92%88%E5%AF%B9Redis%E6%9C%8D%E5%8A%A1%E5%AE%95%E6%9C%BA%E7%9A%84%E6%83%85%E5%86%B5"><span class="toc-text">针对Redis服务宕机的情况</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%92%88%E5%AF%B9%E5%A4%A7%E9%87%8F%E7%BC%93%E5%AD%98%E5%90%8C%E6%97%B6%E5%A4%B1%E6%95%88%E7%9A%84%E6%83%85%E5%86%B5"><span class="toc-text">针对大量缓存同时失效的情况</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%93%E5%AD%98%E9%A2%84%E7%83%AD"><span class="toc-text">缓存预热</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8C%E5%86%99%E4%B8%80%E8%87%B4%E6%80%A7"><span class="toc-text">双写一致性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A6%81%E6%B1%82%E5%BC%BA%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%9A%E7%94%A8%E8%AF%BB%E5%86%99%E9%94%81"><span class="toc-text">要求强一致性：用读写锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%81%E8%AE%B8%E5%BB%B6%E8%BF%9F%E4%B8%80%E8%87%B4%EF%BC%9A%E4%BF%9D%E8%AF%81%E6%95%B0%E6%8D%AE%E7%9A%84%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%EF%BC%8C%E7%94%A8%E5%BC%82%E6%AD%A5%E9%80%9A%E7%9F%A5"><span class="toc-text">允许延迟一致：保证数据的最终一致，用异步通知</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%8C%81%E4%B9%85%E5%8C%96"><span class="toc-text">数据持久化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RDB"><span class="toc-text">RDB</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#AOF"><span class="toc-text">AOF</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#AOF%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-text">AOF的工作流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%B7%E7%9B%98%E7%AD%96%E7%95%A5%EF%BC%88AOF%E6%8C%81%E4%B9%85%E5%8C%96%E7%AD%96%E7%95%A5%EF%BC%89"><span class="toc-text">刷盘策略（AOF持久化策略）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E6%AF%94"><span class="toc-text">对比</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%A1%E9%AA%8C%E6%9C%BA%E5%88%B6"><span class="toc-text">校验机制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E8%BF%87%E6%9C%9F%E5%88%A0%E9%99%A4%E7%AD%96%E7%95%A5"><span class="toc-text">数据过期删除策略</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E6%B7%98%E6%B1%B0%E7%AD%96%E7%95%A5"><span class="toc-text">数据淘汰策略</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="toc-text">分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%A1%88"><span class="toc-text">分布式锁的实现方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Redis"><span class="toc-text">Redis</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ZooKeeper"><span class="toc-text">ZooKeeper</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%8F%AF%E9%87%8D%E5%85%A5%EF%BC%9F"><span class="toc-text">如何实现可重入？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E9%9B%86%E7%BE%A4%E4%B8%8B%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%8F%AF%E9%9D%A0%E6%80%A7%EF%BC%9F"><span class="toc-text">如何解决集群下分布式锁的可靠性？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%B9%82%E7%AD%89%E6%80%A7-%E2%AD%90TODO"><span class="toc-text">接口的幂等性 ⭐TODO</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96"><span class="toc-text">Redis性能优化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%89%B9%E9%87%8F%E6%93%8D%E4%BD%9C%E5%87%8F%E5%B0%91%E7%BD%91%E7%BB%9C%E4%BC%A0%E8%BE%93"><span class="toc-text">使用批量操作减少网络传输</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%A7%E9%87%8Fkey%E9%9B%86%E4%B8%AD%E8%BF%87%E6%9C%9F%E5%BD%B1%E5%93%8D%E6%80%A7%E8%83%BD"><span class="toc-text">大量key集中过期影响性能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bigkey%E5%BD%B1%E5%93%8D%E6%80%A7%E8%83%BD"><span class="toc-text">Bigkey影响性能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hotkey%E5%BD%B1%E5%93%8D%E6%80%A7%E8%83%BD"><span class="toc-text">Hotkey影响性能</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%85%A2%E6%9F%A5%E8%AF%A2%E5%91%BD%E4%BB%A4"><span class="toc-text">慢查询命令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis%E5%B8%B8%E8%A7%81%E9%98%BB%E5%A1%9E%E5%8E%9F%E5%9B%A0"><span class="toc-text">Redis常见阻塞原因</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis%E5%86%85%E5%AD%98%E7%A2%8E%E7%89%87"><span class="toc-text">Redis内存碎片</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis-Sentinel"><span class="toc-text">Redis Sentinel</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-Sentinel"><span class="toc-text">什么是 Sentinel</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel-%E6%9C%89%E4%BB%80%E4%B9%88%E7%94%A8"><span class="toc-text">Sentinel 有什么用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel-%E5%A6%82%E4%BD%95%E6%A3%80%E6%B5%8B%E8%8A%82%E7%82%B9%E4%B8%8B%E7%BA%BF"><span class="toc-text">Sentinel 如何检测节点下线</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E9%80%89%E5%87%BA%E6%96%B0Master"><span class="toc-text">如何选出新Master</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Sentinel-%E6%98%AF%E5%90%A6%E5%8F%AF%E4%BB%A5%E9%98%B2%E6%AD%A2%E8%84%91%E8%A3%82"><span class="toc-text">Sentinel 是否可以防止脑裂</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis-Cluster"><span class="toc-text">Redis Cluster</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis-Cluster-%E5%A6%82%E4%BD%95%E5%88%86%E7%89%87"><span class="toc-text">Redis Cluster 如何分片</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis-Cluster-%E6%89%A9%E5%AE%B9%E7%BC%A9%E5%AE%B9%E6%9C%9F%E9%97%B4%E5%8F%AF%E4%BB%A5%E6%8F%90%E4%BE%9B%E6%9C%8D%E5%8A%A1%E5%90%97%EF%BC%9F"><span class="toc-text">Redis Cluster 扩容缩容期间可以提供服务吗？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis%E5%AE%9E%E7%8E%B0%E5%BB%B6%E6%97%B6%E4%BB%BB%E5%8A%A1"><span class="toc-text">Redis实现延时任务</span></a></li></ol></div><div class="widget-footer">
+
+<a class="top" onclick="util.scrollTop()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2c4.714 0 7.071 0 8.535 1.464C22 4.93 22 7.286 22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"/></g></svg><span>回到顶部</span></a><a class="buttom" onclick="util.scrollComment()"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10.46 1.25h3.08c1.603 0 2.86 0 3.864.095c1.023.098 1.861.3 2.6.752a5.75 5.75 0 0 1 1.899 1.899c.452.738.654 1.577.752 2.6c.095 1.004.095 2.261.095 3.865v1.067c0 1.141 0 2.036-.05 2.759c-.05.735-.153 1.347-.388 1.913a5.75 5.75 0 0 1-3.112 3.112c-.805.334-1.721.408-2.977.43a10.81 10.81 0 0 0-.929.036c-.198.022-.275.054-.32.08c-.047.028-.112.078-.224.232c-.121.166-.258.396-.476.764l-.542.916c-.773 1.307-2.69 1.307-3.464 0l-.542-.916a10.605 10.605 0 0 0-.476-.764c-.112-.154-.177-.204-.224-.232c-.045-.026-.122-.058-.32-.08c-.212-.023-.49-.03-.93-.037c-1.255-.021-2.171-.095-2.976-.429A5.75 5.75 0 0 1 1.688 16.2c-.235-.566-.338-1.178-.389-1.913c-.049-.723-.049-1.618-.049-2.76v-1.066c0-1.604 0-2.86.095-3.865c.098-1.023.3-1.862.752-2.6a5.75 5.75 0 0 1 1.899-1.899c.738-.452 1.577-.654 2.6-.752C7.6 1.25 8.857 1.25 10.461 1.25M6.739 2.839c-.914.087-1.495.253-1.959.537A4.25 4.25 0 0 0 3.376 4.78c-.284.464-.45 1.045-.537 1.96c-.088.924-.089 2.11-.089 3.761v1c0 1.175 0 2.019.046 2.685c.045.659.131 1.089.278 1.441a4.25 4.25 0 0 0 2.3 2.3c.515.214 1.173.294 2.429.316h.031c.398.007.747.013 1.037.045c.311.035.616.104.909.274c.29.17.5.395.682.645c.169.232.342.525.538.856l.559.944a.52.52 0 0 0 .882 0l.559-.944c.196-.331.37-.624.538-.856c.182-.25.392-.476.682-.645c.293-.17.598-.24.909-.274c.29-.032.639-.038 1.037-.045h.032c1.255-.022 1.913-.102 2.428-.316a4.25 4.25 0 0 0 2.3-2.3c.147-.352.233-.782.278-1.441c.046-.666.046-1.51.046-2.685v-1c0-1.651 0-2.837-.089-3.762c-.087-.914-.253-1.495-.537-1.959a4.25 4.25 0 0 0-1.403-1.403c-.464-.284-1.045-.45-1.96-.537c-.924-.088-2.11-.089-3.761-.089h-3c-1.651 0-2.837 0-3.762.089" clip-rule="evenodd"/><path fill="currentColor" d="M9 11a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0m4 0a1 1 0 1 1-2 0a1 1 0 0 1 2 0"/></svg><span>参与讨论</span></a></div></widget>
+</div></aside><div class='float-panel blur'>
+  <button type='button' style='display:none' class='laptop-only rightbar-toggle mobile' onclick='sidebar.rightbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+  </button>
+  <button type='button' style='display:none' class='mobile-only leftbar-toggle mobile' onclick='sidebar.leftbar()'>
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"/><path id="sep" stroke-linecap="round" d="M5.5 10h6m-5 4h4m4.5 7V3"/></g></svg>
+  </button>
+</div>
+</div><div class="scripts">
+<script type="text/javascript">
+  const ctx = {
+    date_suffix: {
+      just: `刚刚`,
+      min: `分钟前`,
+      hour: `小时前`,
+      day: `天前`,
+    },
+    root : `/`,
+  };
+
+  // required plugins (only load if needs)
+  if (`local_search`) {
+    ctx.search = {};
+    ctx.search.service = `local_search`;
+    if (ctx.search.service == 'local_search') {
+      let service_obj = Object.assign({}, `{"field":"all","path":"/search.json","content":true,"sort":"-date"}`);
+      ctx.search[ctx.search.service] = service_obj;
+    }
+  }
+  const def = {
+    avatar: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/avatar/round/3442075.svg`,
+    cover: `https://gcore.jsdelivr.net/gh/cdn-x/placeholder@1.0.12/cover/76b86c0226ffd.svg`,
+  };
+  const deps = {
+    jquery: `https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js`,
+    marked: `https://cdn.bootcdn.net/ajax/libs/marked/4.0.18/marked.min.js`
+  }
+  
+
+</script>
+
+<script type="text/javascript">
+  const utils = {
+    // 懒加载 css https://github.com/filamentgroup/loadCSS
+    css: (href, before, media, attributes) => {
+      var doc = window.document;
+      var ss = doc.createElement("link");
+      var ref;
+      if (before) {
+        ref = before;
+      } else {
+        var refs = (doc.body || doc.getElementsByTagName("head")[0]).childNodes;
+        ref = refs[refs.length - 1];
+      }
+      var sheets = doc.styleSheets;
+      if (attributes) {
+        for (var attributeName in attributes) {
+          if (attributes.hasOwnProperty(attributeName)) {
+            ss.setAttribute(attributeName, attributes[attributeName]);
+          }
+        }
+      }
+      ss.rel = "stylesheet";
+      ss.href = href;
+      ss.media = "only x";
+      function ready(cb) {
+        if (doc.body) {
+          return cb();
+        }
+        setTimeout(function () {
+          ready(cb);
+        });
+      }
+      ready(function () {
+        ref.parentNode.insertBefore(ss, before ? ref : ref.nextSibling);
+      });
+      var onloadcssdefined = function (cb) {
+        var resolvedHref = ss.href;
+        var i = sheets.length;
+        while (i--) {
+          if (sheets[i].href === resolvedHref) {
+            return cb();
+          }
+        }
+        setTimeout(function () {
+          onloadcssdefined(cb);
+        });
+      };
+      function loadCB() {
+        if (ss.addEventListener) {
+          ss.removeEventListener("load", loadCB);
+        }
+        ss.media = media || "all";
+      }
+      if (ss.addEventListener) {
+        ss.addEventListener("load", loadCB);
+      }
+      ss.onloadcssdefined = onloadcssdefined;
+      onloadcssdefined(loadCB);
+      return ss;
+    },
+
+    js: (src, opt) => new Promise((resolve, reject) => {
+      var script = document.createElement('script');
+      if (src.startsWith('/')){
+        src = ctx.root + src.substring(1);
+      }
+      script.src = src;
+      if (opt) {
+        for (let key of Object.keys(opt)) {
+          script[key] = opt[key]
+        }
+      } else {
+        // 默认异步，如果需要同步，第二个参数传入 {} 即可
+        script.async = true
+      }
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    }),
+
+    jq: (fn) => {
+      if (typeof jQuery === 'undefined') {
+        utils.js(deps.jquery).then(fn)
+      } else {
+        fn()
+      }
+    },
+    
+    onLoading: (el) => {
+      if (el) {
+        $(el).append('<div class="loading-wrap"><svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" stroke-opacity=".3" d="M12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.3s" values="60;0"/></path><path stroke-dasharray="15" stroke-dashoffset="15" d="M12 3C16.9706 3 21 7.02944 21 12"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="15;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path></g></svg></div>');
+      }
+    },
+    onLoadSuccess: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap').remove();
+      }
+    },
+    onLoadFailure: (el) => {
+      if (el) {
+        $(el).find('.loading-wrap svg').remove();
+        $(el).find('.loading-wrap').append('<svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="60" stroke-dashoffset="60" d="M12 3L21 20H3L12 3Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.5s" values="60;0"/></path><path stroke-dasharray="6" stroke-dashoffset="6" d="M12 10V14"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.6s" dur="0.2s" values="6;0"/></path></g><circle cx="12" cy="17" r="1" fill="currentColor" fill-opacity="0"><animate fill="freeze" attributeName="fill-opacity" begin="0.8s" dur="0.4s" values="0;1"/></circle></svg>');
+        $(el).find('.loading-wrap').addClass('error');
+      }
+    },
+    request: (el, url, callback, onFailure) => {
+      let retryTimes = 3;
+      utils.onLoading(el);
+      function req() {
+        return new Promise((resolve, reject) => {
+          let status = 0; // 0 等待 1 完成 2 超时
+          let timer = setTimeout(() => {
+            if (status === 0) {
+              status = 2;
+              timer = null;
+              reject('请求超时');
+              if (retryTimes == 0) {
+                onFailure();
+              }
+            }
+          }, 5000);
+          fetch(url).then(function(response) {
+            if (status !== 2) {
+              clearTimeout(timer);
+              resolve(response);
+              timer = null;
+              status = 1;
+            }
+            if (response.ok) {
+              return response.json();
+            }
+            throw new Error('Network response was not ok.');
+          }).then(function(data) {
+            retryTimes = 0;
+            utils.onLoadSuccess(el);
+            callback(data);
+          }).catch(function(error) {
+            if (retryTimes > 0) {
+              retryTimes -= 1;
+              setTimeout(() => {
+                req();
+              }, 5000);
+            } else {
+              utils.onLoadFailure(el);
+              onFailure();
+            }
+          });
+        });
+      }
+      req();
+    },
+  };
+</script>
+
+<script>
+  const sidebar = {
+    leftbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    rightbar: () => {
+      if (l_body) {
+        l_body.toggleAttribute('rightbar');
+        l_body.removeAttribute('leftbar');
+      }
+    },
+    dismiss: () => {
+      if (l_body) {
+        l_body.removeAttribute('leftbar');
+        l_body.removeAttribute('rightbar');
+      }
+    },
+    toggleTOC: () => {
+      document.querySelector('#data-toc').classList.toggle('collapse');
+    }
+  }
+</script>
+
+<!-- required -->
+<script src="/js/main.js?v=1.28.1" async></script>
+
+<!-- optional -->
+
+
+
+<script defer>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.services = Object.assign({}, JSON.parse(`{"mdrender":{"js":"/js/services/mdrender.js"},"siteinfo":{"js":"/js/services/siteinfo.js","api":null},"ghinfo":{"js":"/js/services/ghinfo.js"},"sites":{"js":"/js/services/sites.js"},"friends":{"js":"/js/services/friends.js"},"timeline":{"js":"/js/services/timeline.js"},"fcircle":{"js":"/js/services/fcircle.js"},"weibo":{"js":"/js/services/weibo.js"},"memos":{"js":"/js/services/memos.js"}}`));
+    for (let id of Object.keys(ctx.services)) {
+      const js = ctx.services[id].js;
+      if (id == 'siteinfo') {
+        ctx.cardlinks = document.querySelectorAll('a.link-card[cardlink]');
+        if (ctx.cardlinks?.length > 0) {
+          utils.js(js, { defer: true }).then(function () {
+            setCardLink(ctx.cardlinks);
+          });
+        }
+      } else {
+        const els = document.getElementsByClassName(`ds-${id}`);
+        if (els?.length > 0) {
+          utils.jq(() => {
+            if (id == 'timeline' || 'memos' || 'marked') {
+              utils.js(deps.marked).then(function () {
+                utils.js(js, { defer: true });
+              });
+            } else {
+              utils.js(js, { defer: true });
+            }
+          });
+        }
+      }
+    }
+  });
+</script>
+
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    ctx.search = {
+      path: `/search.json`,
+    }
+    utils.js('/js/search/local-search.js', { defer: true });
+  });
+</script><script>
+  window.FPConfig = {
+    delay: 0,
+    ignoreKeywords: [],
+    maxRPS: 5,
+    hoverDelay: 25
+  };
+</script>
+<script defer src="https://cdn.bootcdn.net/ajax/libs/flying-pages/2.1.2/flying-pages.min.js"></script><script defer src="https://cdn.bootcdn.net/ajax/libs/vanilla-lazyload/17.8.4/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazy",
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    window.lazyLoadInstance?.update();
+  });
+</script><script>
+  ctx.fancybox = {
+    selector: `.timenode p>img`,
+    css: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.min.css`,
+    js: `https://cdn.bootcdn.net/ajax/libs/fancyapps-ui/5.0.22/fancybox/fancybox.umd.min.js`
+  };
+  var selector = '[data-fancybox]:not(.error)';
+  if (ctx.fancybox.selector) {
+    selector += `, ${ctx.fancybox.selector}`
+  }
+  var needFancybox = document.querySelectorAll(selector).length !== 0;
+  if (!needFancybox) {
+    const els = document.getElementsByClassName('ds-memos');
+    if (els != undefined && els.length > 0) {
+      needFancybox = true;
+    }
+  }
+  if (needFancybox) {
+    utils.css(ctx.fancybox.css);
+    utils.js(ctx.fancybox.js, { defer: true }).then(function () {
+      Fancybox.bind(selector, {
+        hideScrollbar: false,
+        Thumbs: {
+          autoStart: false,
+        },
+        caption: (fancybox, slide) => {
+          return slide.triggerEl.alt || slide.triggerEl.dataset.caption || null
+        }
+      });
+    })
+  }
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', (event) => {
+    const swiper_api = document.getElementById('swiper-api');
+    if (swiper_api != undefined) {
+      utils.css(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.css`);
+      utils.js(`https://unpkg.com/swiper@10.3.1/swiper-bundle.min.js`, { defer: true }).then(function () {
+        const effect = swiper_api.getAttribute('effect') || '';
+        var swiper = new Swiper('.swiper#swiper-api', {
+          slidesPerView: 'auto',
+          spaceBetween: 8,
+          centeredSlides: true,
+          effect: effect,
+          rewind: true,
+          pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+          },
+          navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+          },
+        });
+      })
+    }
+  });
+</script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    window.codeElements = document.querySelectorAll('.code');
+    if (window.codeElements.length > 0) {
+      ctx.copycode = {
+        default_text: `Copy`,
+        success_text: `Copied`,
+        toast: `复制成功`,
+      };
+      utils.js('/js/plugins/copycode.js');
+    }
+  });
+</script>
+
+
+<!-- inject -->
+
+</div></body></html>
